@@ -1,0 +1,727 @@
+/* ============================================================
+   BREW WARM — Design Token System
+   A warm, earthy, café-inspired aesthetic.
+   Cream paper tones, a single terracotta accent,
+   expressive serif display type, and coffee-stain textures.
+   ============================================================ */
+
+/* --- Google Fonts are loaded in layout.tsx via next/font --- */
+
+/* ============================================================
+   1. COLOR TOKENS
+   ============================================================ */
+:root {
+  color-scheme: light;
+
+  /* Core palette — light theme */
+  --color-bg:           #FBF6EE;
+  --color-ink:          #2B1B12;
+  --color-accent:       #C1682F;
+  --color-accent-muted: #F3DECB;
+
+  /* Neutral ramp */
+  --color-neutral-50:   #F6EFE4;
+  --color-neutral-100:  #EFE4D3;
+  --color-neutral-200:  #E2D3BB;
+  --color-neutral-300:  #CBB799;
+  --color-neutral-400:  #A08A6C;
+  --color-neutral-500:  #7A6650;
+  --color-neutral-600:  #5E4E3C;
+  --color-neutral-700:  #48392B;
+  --color-neutral-800:  #342820;
+  --color-neutral-900:  #231B15;
+  --color-neutral-950:  #1B140F;
+
+  /* Raw RGB channels for alpha compositing */
+  --rgb-accent:     193, 104, 47;
+  --rgb-ink:        43, 27, 18;
+  --rgb-bg:         251, 246, 238;
+  --rgb-neutral-200: 226, 211, 187;
+  --rgb-neutral-300: 203, 183, 153;
+
+  /* Semantic text colors */
+  --color-text-primary:   var(--color-ink);
+  --color-text-secondary: var(--color-neutral-500);
+  --color-text-tertiary:  var(--color-neutral-400);
+
+  /* Surface and border */
+  --color-surface:        var(--color-neutral-50);
+  --color-border:         var(--color-neutral-200);
+  --color-border-strong:  var(--color-neutral-300);
+
+  /* Shadows — warm black base */
+  --shadow-color: 30, 18, 10;
+  --shadow-resting:  0 8px 22px -14px rgba(var(--shadow-color), 0.20);
+  --shadow-hover:    0 18px 36px -20px rgba(var(--shadow-color), 0.32);
+  --shadow-sheet:    0 -40px 90px -20px rgba(var(--shadow-color), 0.30);
+}
+
+/* --- Dark theme --- */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg:           #1B140F;
+  --color-ink:          #F3E9DC;
+  --color-accent:       #E08A52;
+  --color-accent-muted: #3A2618;
+
+  --color-neutral-50:   #231B15;
+  --color-neutral-100:  #2A2019;
+  --color-neutral-200:  #3A2E23;
+  --color-neutral-300:  #4C3D2E;
+  --color-neutral-400:  #8C795F;
+  --color-neutral-500:  #B0A085;
+  --color-neutral-600:  #C4B89C;
+  --color-neutral-700:  #D4CBBA;
+  --color-neutral-800:  #E2D9CC;
+  --color-neutral-900:  #EDE6DC;
+  --color-neutral-950:  #F3E9DC;
+
+  --rgb-accent:     224, 138, 82;
+  --rgb-ink:        243, 233, 220;
+  --rgb-bg:         27, 20, 15;
+  --rgb-neutral-200: 58, 46, 35;
+  --rgb-neutral-300: 76, 61, 46;
+
+  --color-text-primary:   var(--color-ink);
+  --color-text-secondary: var(--color-neutral-500);
+  --color-text-tertiary:  var(--color-neutral-400);
+
+  --color-surface:        var(--color-neutral-50);
+  --color-border:         var(--color-neutral-200);
+  --color-border-strong:  var(--color-neutral-300);
+
+  --shadow-color: 0, 0, 0;
+  --shadow-resting:  0 2px 8px -4px rgba(var(--shadow-color), 0.15);
+  --shadow-hover:    0 4px 12px -6px rgba(var(--shadow-color), 0.25);
+  --shadow-sheet:    0 -10px 30px -10px rgba(var(--shadow-color), 0.20);
+}
+
+/* System preference fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-bg:           #1B140F;
+    --color-ink:          #F3E9DC;
+    --color-accent:       #E08A52;
+    --color-accent-muted: #3A2618;
+
+    --color-neutral-50:   #231B15;
+    --color-neutral-100:  #2A2019;
+    --color-neutral-200:  #3A2E23;
+    --color-neutral-300:  #4C3D2E;
+    --color-neutral-400:  #8C795F;
+    --color-neutral-500:  #B0A085;
+    --color-neutral-600:  #C4B89C;
+    --color-neutral-700:  #D4CBBA;
+    --color-neutral-800:  #E2D9CC;
+    --color-neutral-900:  #EDE6DC;
+    --color-neutral-950:  #F3E9DC;
+
+    --rgb-accent:     224, 138, 82;
+    --rgb-ink:        243, 233, 220;
+    --rgb-bg:         27, 20, 15;
+    --rgb-neutral-200: 58, 46, 35;
+    --rgb-neutral-300: 76, 61, 46;
+
+    --color-text-primary:   var(--color-ink);
+    --color-text-secondary: var(--color-neutral-500);
+    --color-text-tertiary:  var(--color-neutral-400);
+
+    --color-surface:        var(--color-neutral-50);
+    --color-border:         var(--color-neutral-200);
+    --color-border-strong:  var(--color-neutral-300);
+
+    --shadow-color: 0, 0, 0;
+    --shadow-resting:  0 2px 8px -4px rgba(var(--shadow-color), 0.15);
+    --shadow-hover:    0 4px 12px -6px rgba(var(--shadow-color), 0.25);
+    --shadow-sheet:    0 -10px 30px -10px rgba(var(--shadow-color), 0.20);
+  }
+}
+
+
+/* ============================================================
+   2. TYPOGRAPHY
+   ============================================================ */
+:root {
+  /* Font families — loaded via next/font in layout.tsx */
+  --font-display:   var(--font-fraunces), 'Source Serif 4', Georgia, serif;
+  --font-body:      var(--font-inter), system-ui, sans-serif;
+  --font-mono:      var(--font-ibm-plex-mono), ui-monospace, monospace;
+  --font-accent:    var(--font-caveat), var(--font-body);
+
+  /* Scale */
+  --text-page-title: 2.5rem;
+  --text-h1:         1.5rem;
+  --text-h2:         1.2rem;
+  --text-body-long:  1.0625rem;  /* 17px */
+  --text-body:       0.9375rem;  /* 15px */
+  --text-small:      0.8125rem;  /* 13px */
+  --text-micro:      0.625rem;   /* 10px */
+
+  /* Line heights */
+  --leading-title:   1.05;
+  --leading-heading:  1.2;
+  --leading-body-long: 1.65;
+  --leading-body:    1.5;
+}
+
+
+/* ============================================================
+   3. SPACING & LAYOUT
+   ============================================================ */
+:root {
+  --space-xs:   0.375rem;  /* 6px */
+  --space-sm:   0.75rem;   /* 12px */
+  --space-md:   1.25rem;   /* 20px */
+  --space-lg:   2rem;      /* 32px */
+  --space-xl:   3rem;      /* 48px */
+
+  --page-pad:        1rem;
+  --page-pad-desktop: 1.5rem;
+  --card-pad:        1.25rem;
+  --card-gap:        0.75rem;
+
+  --content-max:    42rem;   /* 672px reading */
+  --content-max-wide: 56rem; /* 896px map+list */
+
+  /* Radii ladder */
+  --radius-lg:  18px;  /* large cards, bottom sheet */
+  --radius-md:  12px;  /* medium cards */
+  --radius-sm:  8px;   /* small elements */
+  --radius-xs:  6px;   /* inputs */
+  --radius-pill: 9999px; /* pills, badges, map pins */
+  --radius-thumb: 10px;  /* thumbnails */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-pad: var(--page-pad-desktop);
+  }
+}
+
+
+/* ============================================================
+   4. RESET & BASE
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  transition: background-color 500ms ease, color 500ms ease;
+  min-height: 100dvh;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: rgba(var(--rgb-ink), 0.25);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 200ms ease;
+}
+
+a:hover {
+  text-decoration-color: var(--color-accent);
+}
+
+a[target="_blank"]::after {
+  content: " ↗";
+  font-size: 0.75em;
+}
+
+::selection {
+  background-color: rgba(var(--rgb-accent), 0.2);
+  color: var(--color-ink);
+}
+
+
+/* ============================================================
+   5. TYPOGRAPHY CLASSES
+   ============================================================ */
+
+/* Page title — Fraunces, large, warm */
+.text-page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-page-title);
+  font-weight: 500;
+  line-height: var(--leading-title);
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* Shop name / heading — Fraunces */
+.text-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 600;
+  line-height: var(--leading-heading);
+}
+
+.text-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: var(--leading-heading);
+}
+
+/* Body — Inter */
+.text-body-long {
+  font-family: var(--font-body);
+  font-size: var(--text-body-long);
+  line-height: var(--leading-body-long);
+}
+
+/* Micro-label — IBM Plex Mono, receipt register */
+.text-micro {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+}
+
+/* Section header — "01 — nearby" convention */
+.section-header {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 400;
+  text-transform: lowercase;
+  letter-spacing: 0.06em;
+  color: var(--color-neutral-400);
+}
+
+/* Accent script — Caveat, max 1 per screen */
+.text-accent-script {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+}
+
+
+/* ============================================================
+   6. COMPONENT PRIMITIVES
+   ============================================================ */
+
+/* --- Card --- */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--card-pad);
+  box-shadow: var(--shadow-resting);
+  transition:
+    box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* --- Button: primary --- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background-color 200ms ease, transform 200ms ease;
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 85%, black);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* --- Button: secondary (text link with arrow) --- */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.btn-secondary::after {
+  content: "→";
+  transition: transform 200ms ease;
+}
+
+.btn-secondary:hover {
+  color: var(--color-accent);
+}
+
+.btn-secondary:hover::after {
+  transform: translate(2px, -2px);
+  content: "↗";
+}
+
+/* --- Tag / Pill --- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-neutral-500);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+/* Featured / barista's pick variant */
+.pill--featured {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  border-color: var(--color-accent);
+}
+
+/* --- Status dot --- */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+  box-shadow: 0 0 6px 2px rgba(var(--rgb-accent), 0.35);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.status-dot--closed {
+  background-color: var(--color-neutral-400);
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* --- Input --- */
+.input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-text-primary);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.input::placeholder {
+  color: var(--color-neutral-400);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(var(--rgb-accent), 0.15);
+}
+
+/* --- Overlay / Modal backdrop --- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(var(--rgb-ink), 0.30);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  animation: fade-in 250ms ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* --- Modal panel --- */
+.modal-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(calc(100% - 2rem), 24rem);
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sheet);
+  z-index: 101;
+  animation: modal-enter 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* --- Bottom sheet (mobile) --- */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 70dvh;
+  overflow-y: auto;
+  background-color: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  border-radius: 20px 20px 0 0;
+  padding: var(--card-pad);
+  box-shadow: var(--shadow-sheet);
+  z-index: 50;
+  animation: sheet-up 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* --- Hairline divider --- */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-sm) 0;
+}
+
+
+/* ============================================================
+   7. ENTRANCE ANIMATIONS
+   Cards fade up from 12px below, staggered 60ms apart.
+   ============================================================ */
+.entrance-stagger {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: entrance-up 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes entrance-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger delays — applied via CSS custom property or nth-child */
+.entrance-stagger:nth-child(1) { animation-delay: 50ms; }
+.entrance-stagger:nth-child(2) { animation-delay: 110ms; }
+.entrance-stagger:nth-child(3) { animation-delay: 170ms; }
+.entrance-stagger:nth-child(4) { animation-delay: 230ms; }
+.entrance-stagger:nth-child(5) { animation-delay: 290ms; }
+.entrance-stagger:nth-child(n+6) { animation-delay: 300ms; }
+
+
+/* ============================================================
+   8. SCROLLBAR
+   Slim, warm-toned, rounded.
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+
+/* ============================================================
+   9. FOCUS & ACCESSIBILITY
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Skip-to-content link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  border-radius: var(--radius-xs);
+  z-index: 999;
+  transition: top 200ms ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+
+/* ============================================================
+   10. THEME TRANSITION
+   Colors crossfade over 500ms when theme changes.
+   ============================================================ */
+.theme-transitioning,
+.theme-transitioning * {
+  transition:
+    background-color 500ms ease,
+    color 500ms ease,
+    border-color 500ms ease,
+    box-shadow 500ms ease !important;
+}
+
+
+/* ============================================================
+   11. REDUCED MOTION
+   Disable all animation and transition under user preference.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ============================================================
+   12. LAYOUT UTILITIES
+   ============================================================ */
+.page-container {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--page-pad);
+}
+
+.page-container--wide {
+  max-width: var(--content-max-wide);
+}
+
+/* Map + side panel split (desktop) */
+.split-layout {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.split-layout__panel {
+  width: 24rem;
+  min-width: 24rem;
+  height: 100%;
+  overflow-y: auto;
+  border-right: 1px solid var(--color-border);
+  padding: var(--card-pad);
+}
+
+.split-layout__map {
+  flex: 1;
+  height: 100%;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 1023px) {
+  .split-layout {
+    flex-direction: column-reverse;
+  }
+
+  .split-layout__panel {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    max-height: 40dvh;
+    border-right: none;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .split-layout__map {
+    height: 60dvh;
+  }
+}
