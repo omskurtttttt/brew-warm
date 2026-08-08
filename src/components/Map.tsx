@@ -93,13 +93,36 @@ function FlyToLocation({ lat, lng }: { lat: number; lng: number }) {
    Main Map Component
    ------------------------------------------------------- */
 
+interface FlyToTarget {
+  lat: number;
+  lng: number;
+  key: number; // incrementing counter to force re-fly
+}
+
 interface MapProps {
   onCafesLoaded?: (cafes: CafeData[]) => void;
   onCafeSelect?: (cafe: CafeData) => void;
   selectedCafeId?: number | null;
+  flyTo?: FlyToTarget | null;
 }
 
-export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId }: MapProps) {
+/* -------------------------------------------------------
+   Fly to a target location (triggered by search)
+   ------------------------------------------------------- */
+function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
+  const map = useMap();
+  const prevKeyRef = useRef<number>(-1);
+
+  useEffect(() => {
+    if (!flyTo || flyTo.key === prevKeyRef.current) return;
+    prevKeyRef.current = flyTo.key;
+    map.flyTo([flyTo.lat, flyTo.lng], 15, { duration: 1.5 });
+  }, [map, flyTo]);
+
+  return null;
+}
+
+export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo }: MapProps) {
   const [cafes, setCafes] = useState<CafeData[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -176,6 +199,7 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId }: Map
 
         <MapEventHandler onBoundsChange={handleBoundsChange} />
 
+        {flyTo && <FlyToSearch flyTo={flyTo} />}
         {userPos && <FlyToLocation lat={userPos[0]} lng={userPos[1]} />}
 
         {/* User location marker */}
