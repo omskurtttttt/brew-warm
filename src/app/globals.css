@@ -951,6 +951,26 @@ a[target="_blank"]::after {
   margin-top: 0.5rem;
 }
 
+.shop-card__favorite-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--color-neutral-400);
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.shop-card__favorite-btn:hover {
+  color: var(--color-accent);
+  transform: scale(1.15);
+}
+
+.shop-card__favorite-btn--active {
+  color: var(--color-accent);
+}
+
 
 /* ============================================================
    15. SHOP DETAIL MODAL
