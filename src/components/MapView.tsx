@@ -9,6 +9,8 @@ import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import AddShopForm from "@/components/AddShopForm";
 import FavoritesPanel from "@/components/FavoritesPanel";
+import ThemeToggle from "@/components/ThemeToggle";
+import CoffeeStain from "@/components/CoffeeStain";
 import { getOrCreateSessionId } from "@/lib/session";
 
 /* Dynamic import — Leaflet requires browser APIs */
@@ -108,6 +110,8 @@ export default function MapView() {
   function handleCafeSelect(cafe: CafeData) {
     setSelectedCafe(cafe);
     setShowDetail(true);
+    flyKeyRef.current += 1;
+    setFlyTo({ lat: cafe.lat, lng: cafe.lng, key: flyKeyRef.current });
   }
 
   function handleSearchSelect(lat: number, lng: number, _label: string) {
@@ -206,9 +210,11 @@ export default function MapView() {
   return (
     <div className="split-layout">
       {/* Side panel */}
-      <aside className="split-layout__panel" aria-label="Cafe list">
+      <aside className="split-layout__panel" aria-label="Cafe list" style={{ position: "relative" }}>
+        <CoffeeStain position="top-right" opacity={0.06} size={220} />
+
         {/* Search */}
-        <div style={{ marginBottom: "var(--space-sm)" }}>
+        <div style={{ marginBottom: "var(--space-sm)", position: "relative", zIndex: 100 }}>
           <SearchBar onLocationSelect={handleSearchSelect} />
         </div>
 
@@ -219,6 +225,8 @@ export default function MapView() {
             alignItems: "center",
             justifyContent: "space-between",
             marginBottom: "var(--space-sm)",
+            position: "relative",
+            zIndex: 1,
           }}
         >
           <div style={{ display: "flex", gap: "0.25rem" }}>
@@ -238,23 +246,26 @@ export default function MapView() {
             </button>
           </div>
 
-          <button
-            onClick={() => setShowAddForm(true)}
-            style={{
-              padding: "0.35rem 0.75rem",
-              borderRadius: "var(--radius-pill)",
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-accent)",
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-micro)",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 150ms ease",
-            }}
-          >
-            + add café
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <ThemeToggle />
+            <button
+              onClick={() => setShowAddForm(true)}
+              style={{
+                padding: "0.35rem 0.75rem",
+                borderRadius: "var(--radius-pill)",
+                backgroundColor: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                color: "var(--color-accent)",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-micro)",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 150ms ease",
+              }}
+            >
+              + add café
+            </button>
+          </div>
         </div>
 
         {/* Tab content */}

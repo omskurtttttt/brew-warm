@@ -34,6 +34,20 @@ function createCafeIcon() {
   });
 }
 
+function createActiveCafeIcon() {
+  return L.divIcon({
+    className: "cafe-marker cafe-marker--active",
+    html: `<svg width="34" height="44" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 12px rgba(193,104,47,0.6));">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.268 21.732 0 14 0z" fill="var(--color-accent, #C1682F)"/>
+      <circle cx="14" cy="13" r="7" fill="#FFFFFF"/>
+      <text x="14" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
+    </svg>`,
+    iconSize: [34, 44],
+    iconAnchor: [17, 44],
+    popupAnchor: [0, -44],
+  });
+}
+
 function createUserIcon() {
   return L.divIcon({
     className: "user-marker",
@@ -170,6 +184,7 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
   );
 
   const cafeIcon = createCafeIcon();
+  const activeCafeIcon = createActiveCafeIcon();
   const userIcon = createUserIcon();
 
   return (
@@ -218,7 +233,7 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
           <Marker
             key={cafe.id}
             position={[cafe.lat, cafe.lng]}
-            icon={cafeIcon}
+            icon={cafe.id === selectedCafeId ? activeCafeIcon : cafeIcon}
             eventHandlers={{
               click: () => onCafeSelect?.(cafe),
             }}
