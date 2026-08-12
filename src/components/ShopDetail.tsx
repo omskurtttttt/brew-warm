@@ -2,6 +2,20 @@
 
 import { useEffect, useCallback, useState } from "react";
 import type { CafeData } from "@/lib/overpass";
+import {
+  CompassIcon,
+  HeartIcon,
+  ShareIcon,
+  MapPinIcon,
+  CoffeeIcon,
+  PhoneIcon,
+  GlobeIcon,
+  ClockIcon,
+  WifiIcon,
+  OutdoorIcon,
+  WheelchairIcon,
+  ArrowLeftIcon,
+} from "./Icons";
 
 interface ShopDetailProps {
   cafe: CafeData;
@@ -59,7 +73,8 @@ export default function ShopDetail({
           className="shop-detail-panel__back-btn"
           aria-label="Back to café list"
         >
-          ← back to list
+          <ArrowLeftIcon size={14} />
+          <span>back to list</span>
         </button>
         <button
           onClick={onClose}
@@ -103,7 +118,7 @@ export default function ShopDetail({
         </div>
       </div>
 
-      {/* Google Maps Style Action Buttons Row */}
+      {/* Action Buttons Row */}
       <div className="shop-detail-panel__actions">
         {/* Directions */}
         <a
@@ -112,7 +127,7 @@ export default function ShopDetail({
           rel="noopener noreferrer"
           className="shop-detail-panel__action-btn"
         >
-          <span style={{ fontSize: "1.1rem" }}>🧭</span>
+          <CompassIcon size={18} color="var(--color-accent)" />
           <span>directions</span>
         </a>
 
@@ -125,7 +140,11 @@ export default function ShopDetail({
               isFavorite ? "shop-detail-panel__action-btn--active" : ""
             }`}
           >
-            <span style={{ fontSize: "1.1rem" }}>{isFavorite ? "♥" : "♡"}</span>
+            <HeartIcon
+              size={18}
+              filled={isFavorite}
+              color={isFavorite ? "#ffffff" : "var(--color-accent)"}
+            />
             <span>{isFavorite ? "saved" : "save"}</span>
           </button>
         )}
@@ -136,7 +155,7 @@ export default function ShopDetail({
           onClick={handleShare}
           className="shop-detail-panel__action-btn"
         >
-          <span style={{ fontSize: "1.1rem" }}>🔗</span>
+          <ShareIcon size={18} color="var(--color-accent)" />
           <span>{copied ? "copied!" : "share"}</span>
         </button>
       </div>
@@ -150,27 +169,45 @@ export default function ShopDetail({
 
       <div className="shop-detail__grid" style={{ gap: "0.875rem" }}>
         {/* Address / Location */}
-        <div className="shop-detail__row">
-          <span className="text-micro">location</span>
+        <div className="shop-detail__row" style={{ alignItems: "flex-start" }}>
+          <span
+            className="text-micro"
+            style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
+          >
+            <MapPinIcon size={13} color="var(--color-accent)" />
+            location
+          </span>
           <span className="shop-detail__value" style={{ fontSize: "var(--text-small)" }}>
-            📍 {cafe.tags.address || `${cafe.lat.toFixed(5)}, ${cafe.lng.toFixed(5)}`}
+            {cafe.tags.address || `${cafe.lat.toFixed(5)}, ${cafe.lng.toFixed(5)}`}
           </span>
         </div>
 
         {/* Cuisine / Specialty */}
         {cafe.tags.cuisine && (
           <div className="shop-detail__row">
-            <span className="text-micro">specialty</span>
-            <span className="shop-detail__value">☕ {cafe.tags.cuisine}</span>
+            <span
+              className="text-micro"
+              style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
+            >
+              <CoffeeIcon size={13} color="var(--color-accent)" />
+              specialty
+            </span>
+            <span className="shop-detail__value">{cafe.tags.cuisine}</span>
           </div>
         )}
 
         {/* Phone */}
         {cafe.tags.phone && (
           <div className="shop-detail__row">
-            <span className="text-micro">phone</span>
+            <span
+              className="text-micro"
+              style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
+            >
+              <PhoneIcon size={13} color="var(--color-accent)" />
+              phone
+            </span>
             <span className="shop-detail__value">
-              📞 <a href={`tel:${cafe.tags.phone}`}>{cafe.tags.phone}</a>
+              <a href={`tel:${cafe.tags.phone}`}>{cafe.tags.phone}</a>
             </span>
           </div>
         )}
@@ -178,9 +215,14 @@ export default function ShopDetail({
         {/* Website */}
         {cafe.tags.website && (
           <div className="shop-detail__row">
-            <span className="text-micro">website</span>
+            <span
+              className="text-micro"
+              style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
+            >
+              <GlobeIcon size={13} color="var(--color-accent)" />
+              website
+            </span>
             <span className="shop-detail__value">
-              🌐{" "}
               <a href={cafe.tags.website} target="_blank" rel="noopener noreferrer">
                 {new URL(cafe.tags.website).hostname}
               </a>
@@ -196,16 +238,18 @@ export default function ShopDetail({
           <p className="section-header" style={{ marginBottom: "0.75rem" }}>
             02 — hours
           </p>
-          <p
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-small)",
-              color: "var(--color-text-primary)",
-              lineHeight: 1.5,
-            }}
-          >
-            ⏰ {cafe.tags.opening_hours}
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <ClockIcon size={15} color="var(--color-accent)" />
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-small)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              {cafe.tags.opening_hours}
+            </span>
+          </div>
         </>
       )}
 
@@ -215,9 +259,33 @@ export default function ShopDetail({
         {hasHours ? "03" : "02"} — amenities
       </p>
       <div style={{ display: "flex", gap: "0.375rem", flexWrap: "wrap" }}>
-        {hasWifi && <span className="pill">📶 wifi</span>}
-        {hasOutdoor && <span className="pill">🌿 outdoor seating</span>}
-        {hasWheelchair && <span className="pill">♿ wheelchair accessible</span>}
+        {hasWifi && (
+          <span
+            className="pill"
+            style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
+          >
+            <WifiIcon size={13} />
+            wifi
+          </span>
+        )}
+        {hasOutdoor && (
+          <span
+            className="pill"
+            style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
+          >
+            <OutdoorIcon size={13} />
+            outdoor seating
+          </span>
+        )}
+        {hasWheelchair && (
+          <span
+            className="pill"
+            style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
+          >
+            <WheelchairIcon size={13} />
+            wheelchair accessible
+          </span>
+        )}
         {!hasWifi && !hasOutdoor && !hasWheelchair && (
           <span className="text-micro">no amenity data available</span>
         )}

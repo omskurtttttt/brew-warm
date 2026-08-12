@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SunIcon, MoonIcon } from "./Icons";
 
 type Theme = "light" | "dark";
 
@@ -59,13 +60,12 @@ export default function ThemeToggle() {
         borderRadius: "var(--radius-sm)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        color: "var(--color-text-secondary)",
+        color: "var(--color-accent)",
         cursor: "pointer",
         transition: "all 200ms ease",
-        fontSize: "14px",
       }}
     >
-      <span aria-hidden="true">{theme === "light" ? "🌙" : "☀️"}</span>
+      {theme === "light" ? <MoonIcon size={16} /> : <SunIcon size={16} />}
     </button>
   );
 }

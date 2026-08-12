@@ -1,6 +1,7 @@
 "use client";
 
 import type { CafeData } from "@/lib/overpass";
+import { HeartIcon } from "./Icons";
 
 interface ShopCardProps {
   cafe: CafeData;
@@ -54,7 +55,7 @@ export default function ShopCard({
               aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
               title={isFavorite ? "Remove from favorites" : "Save to favorites"}
             >
-              {isFavorite ? "♥" : "♡"}
+              <HeartIcon size={16} filled={isFavorite} color={isFavorite ? "var(--color-accent)" : "var(--color-text-secondary)"} />
             </button>
           )}
           <span className={`status-dot ${hasHours ? "" : "status-dot--closed"}`} />

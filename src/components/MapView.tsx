@@ -354,8 +354,8 @@ export default function MapView() {
       {/* Add shop modal */}
       {showAddForm && (
         <AddShopForm
-          initialLat={selectedCafe?.lat || 14.5995}
-          initialLng={selectedCafe?.lng || 120.9842}
+          initialLat={selectedCafe?.lat || 13.1391}
+          initialLng={selectedCafe?.lng || 123.7438}
           onClose={() => setShowAddForm(false)}
           onShopAdded={handleShopAdded}
         />

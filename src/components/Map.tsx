@@ -145,8 +145,8 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
   // Debounce timer ref
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Default center (Manila, Philippines — reasonable default)
-  const defaultCenter: [number, number] = [14.5995, 120.9842];
+  // Default center (Legazpi City, Albay, Philippines)
+  const defaultCenter: [number, number] = [13.1391, 123.7438];
 
   // Request user geolocation on mount
   useEffect(() => {
