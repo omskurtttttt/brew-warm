@@ -11,6 +11,7 @@ import AddShopForm from "@/components/AddShopForm";
 import FavoritesPanel from "@/components/FavoritesPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import CoffeeStain from "@/components/CoffeeStain";
+import { PanelLeftIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 
 /* Dynamic import — Leaflet requires browser APIs */
@@ -42,6 +43,7 @@ export default function MapView() {
   const [activeTab, setActiveTab] = useState<"nearby" | "saved">("nearby");
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; key: number } | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
   // Session & Favorites state
   const [sessionId, setSessionId] = useState<string>("");
@@ -208,7 +210,7 @@ export default function MapView() {
   }
 
   return (
-    <div className="split-layout">
+    <div className={`split-layout ${isSidebarOpen ? "" : "split-layout--collapsed"}`}>
       {/* Side panel */}
       <aside className="split-layout__panel" aria-label="Cafe list" style={{ position: "relative" }}>
         <CoffeeStain position="top-right" opacity={0.06} size={220} />
@@ -259,12 +261,33 @@ export default function MapView() {
                 </button>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  title="Collapse sidebar"
+                  aria-label="Collapse sidebar"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "var(--radius-sm)",
+                    backgroundColor: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-accent)",
+                    cursor: "pointer",
+                    transition: "all 200ms ease",
+                  }}
+                >
+                  <PanelLeftIcon size={16} />
+                </button>
                 <ThemeToggle />
                 <button
                   onClick={() => setShowAddForm(true)}
                   style={{
-                    padding: "0.35rem 0.75rem",
+                    padding: "0.35rem 0.65rem",
                     borderRadius: "var(--radius-pill)",
                     backgroundColor: "var(--color-surface)",
                     border: "1px solid var(--color-border)",
@@ -343,11 +366,24 @@ export default function MapView() {
 
       {/* Map area */}
       <div className="split-layout__map">
+        {/* Floating Sidebar Toggle Button on Map */}
+        <button
+          type="button"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="sidebar-toggle-btn"
+          aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          <PanelLeftIcon size={16} />
+          <span>{isSidebarOpen ? "hide sidebar" : "show sidebar"}</span>
+        </button>
+
         <Map
           onCafesLoaded={setCafes}
           onCafeSelect={handleCafeSelect}
           selectedCafeId={selectedCafe?.id ?? null}
           flyTo={flyTo}
+          isSidebarOpen={isSidebarOpen}
         />
       </div>
 

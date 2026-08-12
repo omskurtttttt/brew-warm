@@ -118,6 +118,23 @@ interface MapProps {
   onCafeSelect?: (cafe: CafeData) => void;
   selectedCafeId?: number | null;
   flyTo?: FlyToTarget | null;
+  isSidebarOpen?: boolean;
+}
+
+/* -------------------------------------------------------
+   Resize map canvas when sidebar is collapsed/expanded
+   ------------------------------------------------------- */
+function MapResizeNotifier({ isSidebarOpen }: { isSidebarOpen?: boolean }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 360);
+    return () => clearTimeout(timer);
+  }, [map, isSidebarOpen]);
+
+  return null;
 }
 
 /* -------------------------------------------------------
@@ -136,7 +153,7 @@ function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
   return null;
 }
 
-export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo }: MapProps) {
+export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo, isSidebarOpen }: MapProps) {
   const [cafes, setCafes] = useState<CafeData[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -213,6 +230,7 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
         />
 
         <MapEventHandler onBoundsChange={handleBoundsChange} />
+        <MapResizeNotifier isSidebarOpen={isSidebarOpen} />
 
         {flyTo && <FlyToSearch flyTo={flyTo} />}
         {userPos && <FlyToLocation lat={userPos[0]} lng={userPos[1]} />}
