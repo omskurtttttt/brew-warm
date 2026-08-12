@@ -213,116 +213,131 @@ export default function MapView() {
       <aside className="split-layout__panel" aria-label="Cafe list" style={{ position: "relative" }}>
         <CoffeeStain position="top-right" opacity={0.06} size={220} />
 
-        {/* Search */}
-        <div style={{ marginBottom: "var(--space-sm)", position: "relative", zIndex: 100 }}>
-          <SearchBar onLocationSelect={handleSearchSelect} />
-        </div>
-
-        {/* Navigation & Add Bar */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "var(--space-sm)",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <div style={{ display: "flex", gap: "0.25rem" }}>
-            <button
-              className={`pill ${activeTab === "nearby" ? "pill--filter-active" : ""}`}
-              onClick={() => setActiveTab("nearby")}
-              style={{ cursor: "pointer" }}
-            >
-              nearby
-            </button>
-            <button
-              className={`pill ${activeTab === "saved" ? "pill--filter-active" : ""}`}
-              onClick={() => setActiveTab("saved")}
-              style={{ cursor: "pointer" }}
-            >
-              saved ({favoriteIds.size})
-            </button>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <ThemeToggle />
-            <button
-              onClick={() => setShowAddForm(true)}
-              style={{
-                padding: "0.35rem 0.75rem",
-                borderRadius: "var(--radius-pill)",
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                color: "var(--color-accent)",
-                fontFamily: "var(--font-mono)",
-                fontSize: "var(--text-micro)",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 150ms ease",
-              }}
-            >
-              + add café
-            </button>
-          </div>
-        </div>
-
-        {/* Tab content */}
-        {activeTab === "nearby" ? (
-          <>
-            {/* Heading */}
-            <div style={{ marginBottom: "var(--space-sm)" }}>
-              <p className="section-header" style={{ marginBottom: "0.25rem" }}>
-                01 — nearby
-              </p>
-              <h1 className="text-h1">cafés near you</h1>
-            </div>
-
-            {/* Filters */}
-            <FilterBar
-              activeFilters={activeFilters}
-              onToggle={handleFilterToggle}
-              cafeCount={filteredCafes.length}
-            />
-
-            {/* Cafe list */}
-            {filteredCafes.length === 0 ? (
-              <div className="empty-state">
-                <p className="text-accent-script" style={{ marginBottom: "0.5rem" }}>
-                  {cafes.length === 0
-                    ? "pan the map to discover cafés"
-                    : "no cafés match your filters"}
-                </p>
-                <p className="text-micro">
-                  {cafes.length === 0
-                    ? "we'll search openstreetmap as you explore"
-                    : `${cafes.length} total — try removing a filter`}
-                </p>
-              </div>
-            ) : (
-              <div className="cafe-list">
-                {filteredCafes.map((cafe, i) => (
-                  <ShopCard
-                    key={cafe.id}
-                    cafe={cafe}
-                    index={i}
-                    isActive={selectedCafe?.id === cafe.id}
-                    onSelect={handleCafeSelect}
-                    isFavorite={favoriteIds.has(cafe.id)}
-                    onToggleFavorite={handleToggleFavorite}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <FavoritesPanel
-            sessionId={sessionId}
-            onSelectShop={handleCafeSelect}
-            favoriteIds={favoriteIds}
+        {/* Render Google Maps style detail view inside sidebar when a shop is selected */}
+        {showDetail && selectedCafe ? (
+          <ShopDetail
+            cafe={selectedCafe}
+            onClose={() => {
+              setShowDetail(false);
+              setSelectedCafe(null);
+            }}
+            isFavorite={favoriteIds.has(selectedCafe.id)}
             onToggleFavorite={handleToggleFavorite}
           />
+        ) : (
+          <>
+            {/* Search */}
+            <div style={{ marginBottom: "var(--space-sm)", position: "relative", zIndex: 100 }}>
+              <SearchBar onLocationSelect={handleSearchSelect} />
+            </div>
+
+            {/* Navigation & Add Bar */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-sm)",
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              <div style={{ display: "flex", gap: "0.25rem" }}>
+                <button
+                  className={`pill ${activeTab === "nearby" ? "pill--filter-active" : ""}`}
+                  onClick={() => setActiveTab("nearby")}
+                  style={{ cursor: "pointer" }}
+                >
+                  nearby
+                </button>
+                <button
+                  className={`pill ${activeTab === "saved" ? "pill--filter-active" : ""}`}
+                  onClick={() => setActiveTab("saved")}
+                  style={{ cursor: "pointer" }}
+                >
+                  saved ({favoriteIds.size})
+                </button>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <ThemeToggle />
+                <button
+                  onClick={() => setShowAddForm(true)}
+                  style={{
+                    padding: "0.35rem 0.75rem",
+                    borderRadius: "var(--radius-pill)",
+                    backgroundColor: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-accent)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--text-micro)",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  + add café
+                </button>
+              </div>
+            </div>
+
+            {/* Tab content */}
+            {activeTab === "nearby" ? (
+              <>
+                {/* Heading */}
+                <div style={{ marginBottom: "var(--space-sm)" }}>
+                  <p className="section-header" style={{ marginBottom: "0.25rem" }}>
+                    01 — nearby
+                  </p>
+                  <h1 className="text-h1">cafés near you</h1>
+                </div>
+
+                {/* Filters */}
+                <FilterBar
+                  activeFilters={activeFilters}
+                  onToggle={handleFilterToggle}
+                  cafeCount={filteredCafes.length}
+                />
+
+                {/* Cafe list */}
+                {filteredCafes.length === 0 ? (
+                  <div className="empty-state">
+                    <p className="text-accent-script" style={{ marginBottom: "0.5rem" }}>
+                      {cafes.length === 0
+                        ? "pan the map to discover cafés"
+                        : "no cafés match your filters"}
+                    </p>
+                    <p className="text-micro">
+                      {cafes.length === 0
+                        ? "we'll search openstreetmap as you explore"
+                        : `${cafes.length} total — try removing a filter`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="cafe-list">
+                    {filteredCafes.map((cafe, i) => (
+                      <ShopCard
+                        key={cafe.id}
+                        cafe={cafe}
+                        index={i}
+                        isActive={selectedCafe?.id === cafe.id}
+                        onSelect={handleCafeSelect}
+                        isFavorite={favoriteIds.has(cafe.id)}
+                        onToggleFavorite={handleToggleFavorite}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <FavoritesPanel
+                sessionId={sessionId}
+                onSelectShop={handleCafeSelect}
+                favoriteIds={favoriteIds}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            )}
+          </>
         )}
       </aside>
 
@@ -335,14 +350,6 @@ export default function MapView() {
           flyTo={flyTo}
         />
       </div>
-
-      {/* Detail modal */}
-      {showDetail && selectedCafe && (
-        <ShopDetail
-          cafe={selectedCafe}
-          onClose={() => setShowDetail(false)}
-        />
-      )}
 
       {/* Add shop modal */}
       {showAddForm && (
