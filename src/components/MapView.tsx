@@ -11,7 +11,8 @@ import AddShopForm from "@/components/AddShopForm";
 import FavoritesPanel from "@/components/FavoritesPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import CoffeeStain from "@/components/CoffeeStain";
-import { PanelLeftIcon } from "@/components/Icons";
+import AmbientPlayer from "@/components/AmbientPlayer";
+import { PanelLeftIcon, SparklesIcon, CompassIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 
 /* Dynamic import — Leaflet requires browser APIs */
@@ -119,6 +120,15 @@ export default function MapView() {
   function handleSearchSelect(lat: number, lng: number, _label: string) {
     flyKeyRef.current += 1;
     setFlyTo({ lat, lng, key: flyKeyRef.current });
+  }
+
+  // Surprise / Random cafe picker
+  function handleSurpriseMe() {
+    const list = filteredCafes.length > 0 ? filteredCafes : cafes;
+    if (list.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * list.length);
+    const chosen = list[randomIndex];
+    handleCafeSelect(chosen);
   }
 
   // Toggle favorite shop with optimistic UI update
@@ -262,27 +272,6 @@ export default function MapView() {
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsSidebarOpen(false)}
-                  title="Collapse sidebar"
-                  aria-label="Collapse sidebar"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "var(--radius-sm)",
-                    backgroundColor: "var(--color-surface)",
-                    border: "1px solid var(--color-border)",
-                    color: "var(--color-accent)",
-                    cursor: "pointer",
-                    transition: "all 200ms ease",
-                  }}
-                >
-                  <PanelLeftIcon size={16} />
-                </button>
                 <ThemeToggle />
                 <button
                   onClick={() => setShowAddForm(true)}
@@ -307,12 +296,35 @@ export default function MapView() {
             {/* Tab content */}
             {activeTab === "nearby" ? (
               <>
-                {/* Heading */}
-                <div style={{ marginBottom: "var(--space-sm)" }}>
-                  <p className="section-header" style={{ marginBottom: "0.25rem" }}>
-                    01 — nearby
-                  </p>
-                  <h1 className="text-h1">cafés near you</h1>
+                {/* Heading & Quick Actions */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    marginBottom: "var(--space-sm)",
+                  }}
+                >
+                  <div>
+                    <p className="section-header" style={{ marginBottom: "0.25rem" }}>
+                      01 — nearby
+                    </p>
+                    <h1 className="text-h1">cafés near you</h1>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+                    <button
+                      type="button"
+                      onClick={handleSurpriseMe}
+                      disabled={filteredCafes.length === 0 && cafes.length === 0}
+                      className="surprise-me-btn"
+                      title="Randomly discover a café on the map"
+                    >
+                      <SparklesIcon size={13} color="var(--color-accent)" />
+                      <span>surprise me</span>
+                    </button>
+                    <AmbientPlayer />
+                  </div>
                 </div>
 
                 {/* Filters */}

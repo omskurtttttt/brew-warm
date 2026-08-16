@@ -1,40 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Fraunces,
-  Inter,
-  IBM_Plex_Mono,
-  Caveat,
-} from "next/font/google";
 import "./globals.css";
-
-/* --------------------------------------------------------
-   Font configuration — brew-warm typography spec
-   -------------------------------------------------------- */
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-fraunces",
-  weight: ["400", "500", "600", "700"],
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-ibm-plex-mono",
-  weight: ["400", "500"],
-});
-
-const caveat = Caveat({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-caveat",
-});
 
 /* --------------------------------------------------------
    Metadata
@@ -55,14 +20,25 @@ export const metadata: Metadata = {
 /* --------------------------------------------------------
    Root layout
    -------------------------------------------------------- */
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html
-      lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${ibmPlexMono.variable} ${caveat.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Google Fonts preconnect & stylesheet */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         {/* Prevent FOUC on theme — inline script reads preference before paint */}
         <script
           dangerouslySetInnerHTML={{
@@ -79,3 +55,4 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
+

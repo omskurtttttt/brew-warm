@@ -306,4 +306,22 @@ export function PanelLeftIcon({ size = 16, color = "currentColor", ...props }: I
   );
 }
 
+export function SparklesIcon({ size = 16, color = "currentColor", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z" />
+    </svg>
+  );
+}
+
 
