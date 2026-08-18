@@ -12,22 +12,30 @@ import { and, gte, lte, sql } from "drizzle-orm";
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
-  const lat = parseFloat(searchParams.get("lat") ?? "");
-  const lng = parseFloat(searchParams.get("lng") ?? "");
-  const radius = parseFloat(searchParams.get("radius") ?? "2");
+  const rawLat = searchParams.get("lat");
+  const rawLng = searchParams.get("lng");
+  const rawRadius = searchParams.get("radius");
 
-  if (isNaN(lat) || isNaN(lng)) {
+  const lat = parseFloat(rawLat ?? "");
+  const lng = parseFloat(rawLng ?? "");
+  const unconstrainedRadius = parseFloat(rawRadius ?? "2");
+
+  if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     return Response.json(
-      { error: "lat and lng query parameters are required" },
+      { error: "Valid lat (-90 to 90) and lng (-180 to 180) query parameters are required" },
       { status: 400 }
     );
   }
 
+  // Clamp radius between 0.1km and 50km
+  const radius = Math.min(Math.max(isNaN(unconstrainedRadius) ? 2 : unconstrainedRadius, 0.1), 50);
+
   // Approximate bounding box from radius in km
   // 1 degree latitude ≈ 111km
-  // 1 degree longitude ≈ 111km * cos(lat)
+  // Safeguard against cos(lat) approaching 0 near poles
+  const cosLat = Math.max(Math.abs(Math.cos((lat * Math.PI) / 180)), 0.0001);
   const latDelta = radius / 111;
-  const lngDelta = radius / (111 * Math.cos((lat * Math.PI) / 180));
+  const lngDelta = radius / (111 * cosLat);
 
   try {
     const results = await db
@@ -42,7 +50,7 @@ export async function GET(request: NextRequest) {
         )
       )
       .orderBy(
-        // Sort by approximate distance (Euclidean, good enough at city scale)
+        // Sort by approximate distance (Euclidean)
         sql`(${shops.lat} - ${lat})*(${shops.lat} - ${lat}) + (${shops.lng} - ${lng})*(${shops.lng} - ${lng})`
       )
       .limit(100);
@@ -86,26 +94,52 @@ export async function POST(request: NextRequest) {
 
   // Validate required fields
   if (!name || typeof name !== "string" || name.trim().length === 0) {
-    return Response.json({ error: "name is required" }, { status: 400 });
+    return Response.json({ error: "name is required (max 150 characters)" }, { status: 400 });
   }
-  if (typeof lat !== "number" || typeof lng !== "number" || isNaN(lat) || isNaN(lng)) {
-    return Response.json({ error: "lat and lng are required numbers" }, { status: 400 });
+  if (name.trim().length > 150) {
+    return Response.json({ error: "name cannot exceed 150 characters" }, { status: 400 });
+  }
+
+  if (
+    typeof lat !== "number" ||
+    typeof lng !== "number" ||
+    isNaN(lat) ||
+    isNaN(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return Response.json({ error: "lat and lng must be valid numbers within map bounds" }, { status: 400 });
+  }
+
+  // Validate website protocol if provided
+  let cleanWebsite: string | null = null;
+  if (typeof website === "string" && website.trim().length > 0) {
+    const trimmed = website.trim();
+    if (trimmed.length > 300) {
+      return Response.json({ error: "website URL is too long (max 300 characters)" }, { status: 400 });
+    }
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+      return Response.json({ error: "website must begin with http:// or https://" }, { status: 400 });
+    }
+    cleanWebsite = trimmed;
   }
 
   try {
     const [inserted] = await db
       .insert(shops)
       .values({
-        name: name.trim(),
+        name: name.trim().slice(0, 150),
         lat,
         lng,
-        address: address?.trim() || null,
-        openingHours: openingHours?.trim() || null,
-        cuisine: cuisine?.trim() || null,
-        phone: phone?.trim() || null,
-        website: website?.trim() || null,
-        internetAccess: internetAccess?.trim() || null,
-        outdoorSeating: outdoorSeating?.trim() || null,
+        address: typeof address === "string" ? address.trim().slice(0, 300) || null : null,
+        openingHours: typeof openingHours === "string" ? openingHours.trim().slice(0, 200) || null : null,
+        cuisine: typeof cuisine === "string" ? cuisine.trim().slice(0, 100) || null : null,
+        phone: typeof phone === "string" ? phone.trim().slice(0, 50) || null : null,
+        website: cleanWebsite,
+        internetAccess: typeof internetAccess === "string" ? internetAccess.trim().slice(0, 20) || null : null,
+        outdoorSeating: typeof outdoorSeating === "string" ? outdoorSeating.trim().slice(0, 20) || null : null,
         source: "user",
       })
       .returning();
@@ -119,3 +153,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

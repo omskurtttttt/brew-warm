@@ -11,12 +11,13 @@ import { and, eq } from "drizzle-orm";
 export async function GET(request: NextRequest) {
   const sessionId = request.nextUrl.searchParams.get("sessionId");
 
-  if (!sessionId) {
+  if (!sessionId || sessionId.length > 100) {
     return Response.json(
-      { error: "sessionId query parameter is required" },
+      { error: "Valid sessionId query parameter is required (max 100 chars)" },
       { status: 400 }
     );
   }
+
 
   try {
     const results = await db
@@ -60,9 +61,9 @@ export async function POST(request: NextRequest) {
     sessionId?: string;
   };
 
-  if (typeof shopId !== "number" || !sessionId) {
+  if (typeof shopId !== "number" || !sessionId || sessionId.length > 100) {
     return Response.json(
-      { error: "shopId (number) and sessionId (string) are required" },
+      { error: "Valid shopId (number) and sessionId (string <= 100 chars) are required" },
       { status: 400 }
     );
   }
@@ -111,12 +112,13 @@ export async function DELETE(request: NextRequest) {
   );
   const sessionId = request.nextUrl.searchParams.get("sessionId");
 
-  if (isNaN(id) || !sessionId) {
+  if (isNaN(id) || !sessionId || sessionId.length > 100) {
     return Response.json(
-      { error: "id and sessionId query parameters are required" },
+      { error: "Valid id and sessionId query parameters are required" },
       { status: 400 }
     );
   }
+
 
   try {
     const [deleted] = await db

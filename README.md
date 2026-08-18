@@ -67,7 +67,7 @@ npm install
 Create a `.env.local` file in the root directory:
 
 ```env
-DATABASE_URL=postgresql://neondb_owner:npg_n5KxbXVk7QYZ@ep-wandering-meadow-azy4sr19.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+DATABASE_URL=postgresql://user:password@ep-sample-host.region.aws.neon.tech/neondb?sslmode=require
 ```
 
 *(Refer to `.env.example` for template)*

@@ -60,7 +60,6 @@ export async function PATCH(
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  // Only allow updating specific fields
   const allowedFields = [
     "name",
     "address",
@@ -72,16 +71,33 @@ export async function PATCH(
     "outdoorSeating",
   ] as const;
 
+  const maxLengths: Record<string, number> = {
+    name: 150,
+    address: 300,
+    openingHours: 200,
+    cuisine: 100,
+    phone: 50,
+    website: 300,
+    internetAccess: 20,
+    outdoorSeating: 20,
+  };
+
   const updates: Record<string, string | null> = {};
   for (const field of allowedFields) {
     if (field in body) {
       const value = body[field];
-      updates[field] =
-        typeof value === "string" && value.trim().length > 0
-          ? value.trim()
-          : null;
+      if (typeof value === "string" && value.trim().length > 0) {
+        const trimmed = value.trim();
+        if (field === "website" && !trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+          return Response.json({ error: "website must begin with http:// or https://" }, { status: 400 });
+        }
+        updates[field] = trimmed.slice(0, maxLengths[field] ?? 200);
+      } else {
+        updates[field] = null;
+      }
     }
   }
+
 
   if (Object.keys(updates).length === 0) {
     return Response.json(
