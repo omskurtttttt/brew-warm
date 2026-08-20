@@ -15,6 +15,7 @@ import AmbientPlayer from "@/components/AmbientPlayer";
 import OnboardingModal from "@/components/OnboardingModal";
 import { SparklesIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
+import { ToastProvider, useToast } from "@/components/Toast";
 
 /* Dynamic import — Leaflet requires browser APIs */
 const Map = dynamic(() => import("@/components/Map"), {
@@ -37,12 +38,14 @@ const Map = dynamic(() => import("@/components/Map"), {
   ),
 });
 
-export default function MapView() {
+function MapViewContent() {
+  const { showToast } = useToast();
   const [cafes, setCafes] = useState<CafeData[]>([]);
   const [selectedCafe, setSelectedCafe] = useState<CafeData | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"nearby" | "saved">("nearby");
+
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; key: number } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -166,7 +169,6 @@ export default function MapView() {
     setFlyTo({ lat, lng, key: flyKeyRef.current });
   }
 
-
   // Surprise / Random cafe picker
   function handleSurpriseMe() {
     const list = filteredCafes.length > 0 ? filteredCafes : cafes;
@@ -174,6 +176,7 @@ export default function MapView() {
     const randomIndex = Math.floor(Math.random() * list.length);
     const chosen = list[randomIndex];
     handleCafeSelect(chosen);
+    showToast(`Serendipity pick: ${chosen.name}! ☕`, "sparkle");
   }
 
   // Toggle favorite shop with optimistic UI update
@@ -181,6 +184,11 @@ export default function MapView() {
     if (!sessionId) return;
 
     const isFav = favoriteIds.has(cafeId);
+    showToast(
+      isFav ? "Removed from saved spots" : "Saved to your café passport! ♥️",
+      isFav ? "info" : "heart"
+    );
+
     // Optimistic state update
     setFavoriteIds((prev) => {
       const next = new Set(prev);
@@ -259,6 +267,7 @@ export default function MapView() {
     setCafes((prev) => [cafeData, ...prev]);
     setSelectedCafe(cafeData);
     setShowDetail(true);
+    showToast(`Added "${newShop.name}" to the community map! ✨`, "sparkle");
     // Fly map to newly added shop
     flyKeyRef.current += 1;
     setFlyTo({ lat: newShop.lat, lng: newShop.lng, key: flyKeyRef.current });
@@ -283,112 +292,122 @@ export default function MapView() {
           />
         ) : (
           <>
-            {/* Search */}
-            <div style={{ marginBottom: "var(--space-sm)", position: "relative", zIndex: 100 }}>
-              <SearchBar onLocationSelect={handleSearchSelect} />
-            </div>
+            {/* Header with Search */}
+            <div className="sidebar-header">
+              <SearchBar
+                onLocationSelect={handleSearchSelect}
+              />
 
-            {/* Navigation & Add Bar */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "var(--space-sm)",
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              <div style={{ display: "flex", gap: "0.25rem" }}>
-                <button
-                  className={`pill ${activeTab === "nearby" ? "pill--filter-active" : ""}`}
-                  onClick={() => setActiveTab("nearby")}
-                  style={{ cursor: "pointer" }}
-                >
-                  nearby
-                </button>
-                <button
-                  className={`pill ${activeTab === "saved" ? "pill--filter-active" : ""}`}
-                  onClick={() => setActiveTab("saved")}
-                  style={{ cursor: "pointer" }}
-                >
-                  saved ({favoriteIds.size})
-                </button>
+              {/* Navigation Bar / Tabs */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "0.85rem",
+                  marginBottom: "0.25rem",
+                }}
+              >
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    className={`pill ${activeTab === "nearby" ? "pill--filter-active" : ""}`}
+                    onClick={() => setActiveTab("nearby")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    nearby
+                  </button>
+                  <button
+                    className={`pill ${activeTab === "saved" ? "pill--filter-active" : ""}`}
+                    onClick={() => setActiveTab("saved")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    saved ({favoriteIds.size})
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowOnboarding(true)}
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      backgroundColor: "var(--color-surface)",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-text-secondary)",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--text-micro)",
+                      fontWeight: 700,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      transition: "all 150ms ease",
+                    }}
+                    title="Welcome Guide & Tour"
+                    aria-label="Open Welcome Guide"
+                  >
+                    ?
+                  </button>
+                  <ThemeToggle />
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-pill)",
+                      backgroundColor: "transparent",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-accent)",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--text-micro)",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      transition: "all 150ms ease",
+                    }}
+                  >
+                    + add café
+                  </button>
+                </div>
               </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <button
-                  type="button"
-                  onClick={() => setShowOnboarding(true)}
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    backgroundColor: "var(--color-surface)",
-                    border: "1px solid var(--color-border)",
-                    color: "var(--color-text-secondary)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "var(--text-micro)",
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    transition: "all 150ms ease",
-                  }}
-                  title="Welcome Guide & Tour"
-                  aria-label="Open Welcome Guide"
-                >
-                  ?
-                </button>
-                <ThemeToggle />
-                <button
-                  onClick={() => setShowAddForm(true)}
-                  style={{
-                    padding: "0.35rem 0.65rem",
-                    borderRadius: "var(--radius-pill)",
-                    backgroundColor: "var(--color-surface)",
-                    border: "1px solid var(--color-border)",
-                    color: "var(--color-accent)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "var(--text-micro)",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "all 150ms ease",
-                  }}
-                >
-                  + add café
-                </button>
-              </div>
             </div>
-
 
             {/* Tab content */}
             {activeTab === "nearby" ? (
               <>
-                {/* Heading & Quick Actions */}
+                {/* Section title & count */}
                 <div
                   style={{
+                    padding: "0 var(--card-pad)",
+                    marginBottom: "0.5rem",
                     display: "flex",
-                    alignItems: "flex-start",
                     justifyContent: "space-between",
-                    marginBottom: "var(--space-sm)",
+                    alignItems: "baseline",
                   }}
                 >
-                  <div>
-                    <p className="section-header" style={{ marginBottom: "0.25rem" }}>
-                      01 — nearby
-                    </p>
-                    <h1 className="text-h1">cafés near you</h1>
-                  </div>
-
-                  <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+                  <p className="section-header">01 — nearby</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                     <button
                       type="button"
                       onClick={handleSurpriseMe}
-                      disabled={filteredCafes.length === 0 && cafes.length === 0}
-                      className="surprise-me-btn"
-                      title="Randomly discover a café on the map"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--text-micro)",
+                        color: "var(--color-text-secondary)",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "3px",
+                      }}
+                      title="Pick a random coffee spot nearby"
                     >
                       <SparklesIcon size={13} color="var(--color-accent)" />
                       <span>surprise me</span>
@@ -397,42 +416,48 @@ export default function MapView() {
                   </div>
                 </div>
 
-                {/* Filters */}
+                <div style={{ padding: "0 var(--card-pad)", marginBottom: "0.75rem" }}>
+                  <h1 className="text-h1" style={{ fontSize: "1.75rem" }}>
+                    cafés near you
+                  </h1>
+                </div>
+
+                {/* Filter tags */}
                 <FilterBar
                   activeFilters={activeFilters}
                   onToggle={handleFilterToggle}
                   cafeCount={filteredCafes.length}
                 />
 
-                {/* Cafe list */}
-                {filteredCafes.length === 0 ? (
-                  <div className="empty-state">
-                    <p className="text-accent-script" style={{ marginBottom: "0.5rem" }}>
-                      {cafes.length === 0
-                        ? "pan the map to discover cafés"
-                        : "no cafés match your filters"}
-                    </p>
-                    <p className="text-micro">
-                      {cafes.length === 0
-                        ? "we'll search openstreetmap as you explore"
-                        : `${cafes.length} total — try removing a filter`}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="cafe-list">
-                    {filteredCafes.map((cafe, i) => (
-                      <ShopCard
-                        key={cafe.id}
-                        cafe={cafe}
-                        index={i}
-                        isActive={selectedCafe?.id === cafe.id}
-                        onSelect={handleCafeSelect}
-                        isFavorite={favoriteIds.has(cafe.id)}
-                        onToggleFavorite={handleToggleFavorite}
-                      />
-                    ))}
-                  </div>
-                )}
+                {/* Café list */}
+                <div className="cafe-list">
+                  {filteredCafes.map((cafe, i) => (
+                    <ShopCard
+                      key={cafe.id}
+                      cafe={cafe}
+                      index={i}
+                      isActive={selectedCafe?.id === cafe.id}
+                      onSelect={handleCafeSelect}
+                      isFavorite={favoriteIds.has(cafe.id)}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
+                  ))}
+
+                  {filteredCafes.length === 0 && (
+                    <div className="empty-state">
+                      <p className="text-accent-script" style={{ marginBottom: "0.5rem" }}>
+                        {cafes.length === 0
+                          ? "pan the map to discover cafés"
+                          : "no cafés match your filters"}
+                      </p>
+                      <p className="text-micro">
+                        {cafes.length === 0
+                          ? "we'll search openstreetmap as you explore"
+                          : `${cafes.length} total — try removing a filter`}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <FavoritesPanel
@@ -550,3 +575,10 @@ export default function MapView() {
   );
 }
 
+export default function MapView() {
+  return (
+    <ToastProvider>
+      <MapViewContent />
+    </ToastProvider>
+  );
+}

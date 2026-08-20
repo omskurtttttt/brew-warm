@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useState } from "react";
 import Image from "next/image";
 import type { CafeData } from "@/lib/overpass";
-
+import { useToast } from "@/components/Toast";
 
 import {
   CompassIcon,
@@ -34,6 +34,7 @@ export default function ShopDetail({
   onToggleFavorite,
 }: ShopDetailProps) {
   const [copied, setCopied] = useState(false);
+  const { showToast } = useToast();
 
   const hasHours = !!cafe.tags.opening_hours;
   const hasWifi =
@@ -88,6 +89,7 @@ export default function ShopDetail({
           text: `Check out ${cafe.name} on Brew Warm ☕`,
           url: shareUrl,
         });
+        showToast("Link shared! ☕", "coffee");
         return;
       } catch {
         // Fallback to clipboard if share cancelled
@@ -97,9 +99,11 @@ export default function ShopDetail({
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareText);
       setCopied(true);
+      showToast("Café link copied to clipboard! 📋", "copy");
       setTimeout(() => setCopied(false), 2000);
     }
   }
+
 
 
   return (
