@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
+import Image from "next/image";
 import type { CafeData } from "@/lib/overpass";
+
+
 import {
   CompassIcon,
   HeartIcon,
@@ -54,15 +57,50 @@ export default function ShopDetail({
   // Directions URL (Google Maps)
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${cafe.lat},${cafe.lng}`;
 
-  // Share handler
-  function handleShare() {
-    const text = `${cafe.name} - Coffee Shop Finder\n${cafe.lat}, ${cafe.lng}`;
+  // Safe website parser
+  const safeWebsiteUrl = (() => {
+    if (!cafe.tags.website) return null;
+    try {
+      const url = new URL(
+        cafe.tags.website.startsWith("http://") || cafe.tags.website.startsWith("https://")
+          ? cafe.tags.website
+          : `https://${cafe.tags.website}`
+      );
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        return { href: url.href, host: url.hostname };
+      }
+    } catch {
+      // Invalid URL
+    }
+    return null;
+  })();
+
+  // Share handler with deep link
+  async function handleShare() {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://brew-warm.vercel.app";
+    const shareUrl = `${origin}/?lat=${cafe.lat.toFixed(5)}&lng=${cafe.lng.toFixed(5)}&shop=${encodeURIComponent(cafe.name)}`;
+    const shareText = `Check out ${cafe.name} on Brew Warm ☕\n${shareUrl}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${cafe.name} — Brew Warm`,
+          text: `Check out ${cafe.name} on Brew Warm ☕`,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+        // Fallback to clipboard if share cancelled
+      }
+    }
+
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   }
+
 
   return (
     <div className="shop-detail-panel entrance-stagger">
@@ -86,10 +124,14 @@ export default function ShopDetail({
       </div>
 
       {/* Hero Cover Banner */}
-      <div className="shop-detail-panel__hero">
-        <img
+      <div className="shop-detail-panel__hero" style={{ position: "relative", width: "100%", height: "180px", overflow: "hidden" }}>
+        <Image
           src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80"
           alt={cafe.name}
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 420px"
+          style={{ objectFit: "cover" }}
           className="shop-detail-panel__hero-img"
         />
         <div className="shop-detail-panel__hero-overlay" />
@@ -97,6 +139,7 @@ export default function ShopDetail({
           {cafe.tags.cuisine || "Specialty Coffee"}
         </span>
       </div>
+
 
       {/* Main Title & Status */}
       <div style={{ marginTop: "1rem", marginBottom: "0.75rem" }}>
@@ -213,7 +256,7 @@ export default function ShopDetail({
         )}
 
         {/* Website */}
-        {cafe.tags.website && (
+        {safeWebsiteUrl && (
           <div className="shop-detail__row">
             <span
               className="text-micro"
@@ -223,13 +266,14 @@ export default function ShopDetail({
               website
             </span>
             <span className="shop-detail__value">
-              <a href={cafe.tags.website} target="_blank" rel="noopener noreferrer">
-                {new URL(cafe.tags.website).hostname}
+              <a href={safeWebsiteUrl.href} target="_blank" rel="noopener noreferrer">
+                {safeWebsiteUrl.host}
               </a>
             </span>
           </div>
         )}
       </div>
+
 
       {/* Section: Opening Hours */}
       {hasHours && (

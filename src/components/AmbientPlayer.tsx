@@ -101,8 +101,8 @@ class AmbientSoundEngine {
 
 export default function AmbientPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
   const engineRef = useRef<AmbientSoundEngine | null>(null);
+
 
   useEffect(() => {
     engineRef.current = new AmbientSoundEngine();

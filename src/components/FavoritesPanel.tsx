@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+
 import type { CafeData } from "@/lib/overpass";
 import ShopCard from "./ShopCard";
 
@@ -37,26 +38,37 @@ export default function FavoritesPanel({
   onToggleFavorite,
 }: FavoritesPanelProps) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchFavorites = useCallback(async () => {
-    if (!sessionId) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/favorites?sessionId=${encodeURIComponent(sessionId)}`);
-      if (!res.ok) throw new Error("Failed to load favorites");
-      const data = await res.json();
-      setFavorites(data.favorites || []);
-    } catch {
-      setFavorites([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId]);
+  const [loading, setLoading] = useState(() => Boolean(sessionId));
 
   useEffect(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
+    if (!sessionId) return;
+
+
+    let isCancelled = false;
+
+    fetch(`/api/favorites?sessionId=${encodeURIComponent(sessionId)}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load favorites");
+        return res.json();
+      })
+      .then((data) => {
+        if (!isCancelled) {
+          setFavorites(data.favorites || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setFavorites([]);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [sessionId]);
+
 
   return (
     <div style={{ marginTop: "1rem" }}>

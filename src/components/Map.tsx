@@ -15,6 +15,8 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import type { CafeData, OverpassBounds } from "@/lib/overpass";
 import { fetchCafes } from "@/lib/overpass";
+import { CompassIcon } from "./Icons";
+
 
 /* -------------------------------------------------------
    Custom Marker Icons — brew-warm terracotta pins
@@ -158,6 +160,9 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locateFly, setLocateFly] = useState<{ lat: number; lng: number; key: number } | null>(null);
+  const locateKeyRef = useRef(0);
 
   // Debounce timer ref
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -169,14 +174,36 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+        (pos) => {
+          setUserPos([pos.coords.latitude, pos.coords.longitude]);
+        },
         () => {
-          // Geolocation denied or unavailable, use default
+          // Geolocation denied or unavailable, fallback to default center
         },
         { enableHighAccuracy: false, timeout: 8000 }
       );
     }
   }, []);
+
+  // Manual locate handler on click
+  function handleManualLocate() {
+    if ("geolocation" in navigator) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(coords);
+          setIsLocating(false);
+          locateKeyRef.current += 1;
+          setLocateFly({ lat: coords[0], lng: coords[1], key: locateKeyRef.current });
+        },
+        () => {
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+  }
 
   // Fetch cafes with debounce when bounds change
   const handleBoundsChange = useCallback(
@@ -218,6 +245,36 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
         </div>
       )}
 
+      {/* Floating GPS Locate Me Button */}
+      <button
+        type="button"
+        onClick={handleManualLocate}
+        className="map-locate-btn"
+        aria-label="Center on my location"
+        title="Center on my location"
+
+        style={{
+          position: "absolute",
+          bottom: "1.25rem",
+          right: "1.25rem",
+          zIndex: 999,
+          width: "42px",
+          height: "42px",
+          borderRadius: "50%",
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          boxShadow: "0 4px 14px rgba(43, 27, 18, 0.15)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          color: "var(--color-accent)",
+          transition: "all 150ms ease",
+        }}
+      >
+        <CompassIcon size={20} color={isLocating ? "var(--color-text-secondary)" : "var(--color-accent)"} />
+      </button>
+
       <MapContainer
         center={userPos ?? defaultCenter}
         zoom={15}
@@ -233,7 +290,8 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
         <MapResizeNotifier isSidebarOpen={isSidebarOpen} />
 
         {flyTo && <FlyToSearch flyTo={flyTo} />}
-        {userPos && <FlyToLocation lat={userPos[0]} lng={userPos[1]} />}
+        {locateFly && <FlyToSearch flyTo={locateFly} />}
+        {userPos && !locateFly && <FlyToLocation lat={userPos[0]} lng={userPos[1]} />}
 
         {/* User location marker */}
         {userPos && (
@@ -297,3 +355,4 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
     </div>
   );
 }
+

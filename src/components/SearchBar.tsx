@@ -90,6 +90,7 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
           onBlur={() => setTimeout(() => setIsOpen(false), 200)}
           aria-label="Search location"
           aria-expanded={isOpen}
+          aria-controls="search-results-list"
           role="combobox"
           aria-autocomplete="list"
         />
@@ -99,13 +100,14 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
       </div>
 
       {isOpen && (
-        <ul className="search-bar__dropdown" role="listbox">
+        <ul id="search-results-list" className="search-bar__dropdown" role="listbox">
           {results.map((r) => (
-            <li key={r.place_id} role="option">
+            <li key={r.place_id} role="option" aria-selected="false">
               <button
                 className="search-bar__result"
                 onMouseDown={() => handleSelect(r)}
               >
+
                 <span className="search-bar__result-name">
                   {r.display_name}
                 </span>
