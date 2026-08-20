@@ -12,7 +12,8 @@ import FavoritesPanel from "@/components/FavoritesPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import CoffeeStain from "@/components/CoffeeStain";
 import AmbientPlayer from "@/components/AmbientPlayer";
-import { PanelLeftIcon, SparklesIcon, CompassIcon } from "@/components/Icons";
+import OnboardingModal from "@/components/OnboardingModal";
+import { SparklesIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 
 /* Dynamic import — Leaflet requires browser APIs */
@@ -45,17 +46,58 @@ export default function MapView() {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; key: number } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
-  // Session & Favorites state
-  const [sessionId, setSessionId] = useState<string>("");
+  // Session & Favorites state initialized lazily
+  const [sessionId] = useState<string>(() =>
+    typeof window !== "undefined" ? getOrCreateSessionId() : ""
+  );
   const [favoriteIds, setFavoriteIds] = useState<Set<number | string>>(new Set());
   const flyKeyRef = useRef(0);
 
-  // Initialize session ID & load existing favorites
+  // Show onboarding for first-time visitors (after hydration, via rAF to satisfy React 19 lint)
   useEffect(() => {
-    const sessId = getOrCreateSessionId();
-    setSessionId(sessId);
+    requestAnimationFrame(() => {
+      try {
+        if (!localStorage.getItem("bw_onboarding_completed")) {
+          setShowOnboarding(true);
+        }
+      } catch {
+        // Ignore storage errors
+      }
+    });
+  }, []);
 
+  // Check URL deep-links and load existing favorites
+  useEffect(() => {
+
+
+
+    // Check URL search parameters for shared café links
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const rawLat = parseFloat(params.get("lat") || "");
+      const rawLng = parseFloat(params.get("lng") || "");
+      const shopName = params.get("shop");
+
+      if (!isNaN(rawLat) && !isNaN(rawLng)) {
+        flyKeyRef.current += 1;
+        setFlyTo({ lat: rawLat, lng: rawLng, key: flyKeyRef.current });
+
+        if (shopName) {
+          setSelectedCafe({
+            id: Date.now(),
+            name: shopName,
+            lat: rawLat,
+            lng: rawLng,
+            tags: { name: shopName },
+          });
+          setShowDetail(true);
+        }
+      }
+    }
+
+    const sessId = sessionId || (typeof window !== "undefined" ? getOrCreateSessionId() : "");
     if (sessId) {
       fetch(`/api/favorites?sessionId=${encodeURIComponent(sessId)}`)
         .then((res) => res.json())
@@ -71,7 +113,9 @@ export default function MapView() {
           // Fallback silences errors
         });
     }
-  }, []);
+  }, [sessionId]);
+
+
 
   // Filter cafes based on active filters
   const filteredCafes = useMemo(() => {
@@ -117,10 +161,11 @@ export default function MapView() {
     setFlyTo({ lat: cafe.lat, lng: cafe.lng, key: flyKeyRef.current });
   }
 
-  function handleSearchSelect(lat: number, lng: number, _label: string) {
+  function handleSearchSelect(lat: number, lng: number) {
     flyKeyRef.current += 1;
     setFlyTo({ lat, lng, key: flyKeyRef.current });
   }
+
 
   // Surprise / Random cafe picker
   function handleSurpriseMe() {
@@ -272,6 +317,30 @@ export default function MapView() {
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setShowOnboarding(true)}
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-text-secondary)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--text-micro)",
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "all 150ms ease",
+                  }}
+                  title="Welcome Guide & Tour"
+                  aria-label="Open Welcome Guide"
+                >
+                  ?
+                </button>
                 <ThemeToggle />
                 <button
                   onClick={() => setShowAddForm(true)}
@@ -292,6 +361,7 @@ export default function MapView() {
                 </button>
               </div>
             </div>
+
 
             {/* Tab content */}
             {activeTab === "nearby" ? (
@@ -378,16 +448,71 @@ export default function MapView() {
 
       {/* Map area */}
       <div className="split-layout__map">
-        {/* Floating Sidebar Toggle Button on Map */}
+        {/* Sidebar Toggle — compact café-styled pill */}
         <button
           type="button"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="sidebar-toggle-btn"
           aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          style={{
+            position: "absolute",
+            top: "14px",
+            left: "14px",
+            zIndex: 1100,
+            display: "flex",
+            alignItems: "center",
+            gap: "7px",
+            padding: "7px 14px 7px 10px",
+            backgroundColor: "rgba(var(--rgb-bg), 0.85)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "100px",
+            cursor: "pointer",
+            boxShadow: "0 2px 12px -3px rgba(0,0,0,0.18)",
+            transition: "all 250ms cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "var(--color-accent)";
+            e.currentTarget.style.boxShadow = "0 4px 18px -4px rgba(var(--rgb-accent), 0.3)";
+            e.currentTarget.style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "var(--color-border)";
+            e.currentTarget.style.boxShadow = "0 2px 12px -3px rgba(0,0,0,0.18)";
+            e.currentTarget.style.transform = "translateY(0)";
+          }}
         >
-          <PanelLeftIcon size={16} />
-          <span>{isSidebarOpen ? "hide sidebar" : "show sidebar"}</span>
+          {/* Animated chevron */}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transition: "transform 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+              transform: isSidebarOpen ? "rotate(0deg)" : "rotate(180deg)",
+            }}
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.68rem",
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              color: "var(--color-text-secondary)",
+              whiteSpace: "nowrap",
+              transition: "color 200ms ease",
+            }}
+          >
+            {isSidebarOpen ? "hide" : "show"}
+          </span>
         </button>
 
         <Map
@@ -408,6 +533,20 @@ export default function MapView() {
           onShopAdded={handleShopAdded}
         />
       )}
+
+      {/* First-time onboarding guide modal */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => {
+          setShowOnboarding(false);
+          try {
+            localStorage.setItem("bw_onboarding_completed", "true");
+          } catch {
+            // Ignore storage errors
+          }
+        }}
+      />
     </div>
   );
 }
+
