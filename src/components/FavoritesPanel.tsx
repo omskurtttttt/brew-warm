@@ -27,6 +27,8 @@ interface FavoriteItem {
 interface FavoritesPanelProps {
   sessionId: string;
   onSelectShop: (cafe: CafeData) => void;
+  onHoverShop?: (cafeId: number | string | null) => void;
+  hoveredCafeId?: number | string | null;
   favoriteIds: Set<number | string>;
   onToggleFavorite: (cafeId: number | string) => void;
 }
@@ -34,10 +36,13 @@ interface FavoritesPanelProps {
 export default function FavoritesPanel({
   sessionId,
   onSelectShop,
+  onHoverShop,
+  hoveredCafeId,
   favoriteIds,
   onToggleFavorite,
 }: FavoritesPanelProps) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+
   const [loading, setLoading] = useState(() => Boolean(sessionId));
 
   useEffect(() => {
@@ -116,7 +121,9 @@ export default function FavoritesPanel({
                 cafe={cafeData}
                 index={i}
                 isActive={false}
+                isHovered={hoveredCafeId === fav.shop.id}
                 onSelect={onSelectShop}
+                onHover={onHoverShop}
                 isFavorite={favoriteIds.has(fav.shop.id)}
                 onToggleFavorite={onToggleFavorite}
               />
@@ -127,3 +134,4 @@ export default function FavoritesPanel({
     </div>
   );
 }
+

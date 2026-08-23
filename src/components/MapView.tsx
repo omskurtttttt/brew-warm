@@ -50,6 +50,7 @@ function MapViewContent() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; key: number } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hoveredCafeId, setHoveredCafeId] = useState<number | string | null>(null);
   
   // Session & Favorites state initialized lazily
   const [sessionId] = useState<string>(() =>
@@ -73,9 +74,6 @@ function MapViewContent() {
 
   // Check URL deep-links and load existing favorites
   useEffect(() => {
-
-
-
     // Check URL search parameters for shared café links
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -117,8 +115,6 @@ function MapViewContent() {
         });
     }
   }, [sessionId]);
-
-
 
   // Filter cafes based on active filters
   const filteredCafes = useMemo(() => {
@@ -437,7 +433,9 @@ function MapViewContent() {
                       cafe={cafe}
                       index={i}
                       isActive={selectedCafe?.id === cafe.id}
+                      isHovered={hoveredCafeId === cafe.id}
                       onSelect={handleCafeSelect}
+                      onHover={setHoveredCafeId}
                       isFavorite={favoriteIds.has(cafe.id)}
                       onToggleFavorite={handleToggleFavorite}
                     />
@@ -463,6 +461,8 @@ function MapViewContent() {
               <FavoritesPanel
                 sessionId={sessionId}
                 onSelectShop={handleCafeSelect}
+                onHoverShop={setHoveredCafeId}
+                hoveredCafeId={hoveredCafeId}
                 favoriteIds={favoriteIds}
                 onToggleFavorite={handleToggleFavorite}
               />
@@ -543,7 +543,9 @@ function MapViewContent() {
         <Map
           onCafesLoaded={setCafes}
           onCafeSelect={handleCafeSelect}
+          onCafeHover={setHoveredCafeId}
           selectedCafeId={selectedCafe?.id ?? null}
+          hoveredCafeId={hoveredCafeId}
           flyTo={flyTo}
           isSidebarOpen={isSidebarOpen}
         />

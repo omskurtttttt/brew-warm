@@ -7,7 +7,9 @@ interface ShopCardProps {
   cafe: CafeData;
   index: number;
   isActive: boolean;
+  isHovered?: boolean;
   onSelect: (cafe: CafeData) => void;
+  onHover?: (cafeId: number | string | null) => void;
   isFavorite?: boolean;
   onToggleFavorite?: (cafeId: number | string) => void;
 }
@@ -16,7 +18,9 @@ export default function ShopCard({
   cafe,
   index,
   isActive,
+  isHovered = false,
   onSelect,
+  onHover,
   isFavorite = false,
   onToggleFavorite,
 }: ShopCardProps) {
@@ -27,9 +31,11 @@ export default function ShopCard({
 
   return (
     <div
-      className={`shop-card entrance-stagger ${isActive ? "shop-card--active" : ""}`}
+      className={`shop-card entrance-stagger ${isActive ? "shop-card--active" : ""} ${isHovered ? "shop-card--hovered" : ""}`}
       style={{ animationDelay: `${50 + index * 60}ms` }}
       onClick={() => onSelect(cafe)}
+      onMouseEnter={() => onHover?.(cafe.id)}
+      onMouseLeave={() => onHover?.(null)}
       role="button"
       tabIndex={0}
       aria-label={`View details for ${cafe.name}`}
@@ -40,6 +46,7 @@ export default function ShopCard({
         }
       }}
     >
+
       {/* Header row */}
       <div className="shop-card__header">
         <h3 className="shop-card__name">{cafe.name}</h3>

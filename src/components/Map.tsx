@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, useCallback, useRef, useState, useMemo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -49,6 +49,21 @@ function createActiveCafeIcon() {
     popupAnchor: [0, -44],
   });
 }
+
+function createHoveredCafeIcon() {
+  return L.divIcon({
+    className: "cafe-marker cafe-marker--hovered",
+    html: `<svg width="34" height="44" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.268 21.732 0 14 0z" fill="var(--color-accent, #C1682F)"/>
+      <circle cx="14" cy="13" r="7" fill="#FFFFFF"/>
+      <text x="14" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
+    </svg>`,
+    iconSize: [34, 44],
+    iconAnchor: [17, 44],
+    popupAnchor: [0, -44],
+  });
+}
+
 
 function createUserIcon() {
   return L.divIcon({
@@ -118,7 +133,9 @@ interface FlyToTarget {
 interface MapProps {
   onCafesLoaded?: (cafes: CafeData[]) => void;
   onCafeSelect?: (cafe: CafeData) => void;
+  onCafeHover?: (cafeId: number | string | null) => void;
   selectedCafeId?: number | null;
+  hoveredCafeId?: number | string | null;
   flyTo?: FlyToTarget | null;
   isSidebarOpen?: boolean;
 }
@@ -155,7 +172,15 @@ function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
   return null;
 }
 
-export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo, isSidebarOpen }: MapProps) {
+export default function Map({
+  onCafesLoaded,
+  onCafeSelect,
+  onCafeHover,
+  selectedCafeId,
+  hoveredCafeId,
+  flyTo,
+  isSidebarOpen,
+}: MapProps) {
   const [cafes, setCafes] = useState<CafeData[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -163,6 +188,13 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
   const [isLocating, setIsLocating] = useState(false);
   const [locateFly, setLocateFly] = useState<{ lat: number; lng: number; key: number } | null>(null);
   const locateKeyRef = useRef(0);
+
+  // Memoized marker icons
+  const cafeIcon = useMemo(() => createCafeIcon(), []);
+  const activeCafeIcon = useMemo(() => createActiveCafeIcon(), []);
+  const hoveredCafeIcon = useMemo(() => createHoveredCafeIcon(), []);
+  const userIcon = useMemo(() => createUserIcon(), []);
+
 
   // Debounce timer ref
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -227,11 +259,8 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
     [onCafesLoaded]
   );
 
-  const cafeIcon = createCafeIcon();
-  const activeCafeIcon = createActiveCafeIcon();
-  const userIcon = createUserIcon();
-
   return (
+
     <div className="map-wrapper">
       {/* Loading / error indicator */}
       {loading && (
@@ -305,25 +334,35 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
         )}
 
         {/* Cafe markers */}
-        {cafes.map((cafe) => (
-          <Marker
-            key={cafe.id}
-            position={[cafe.lat, cafe.lng]}
-            icon={cafe.id === selectedCafeId ? activeCafeIcon : cafeIcon}
-            eventHandlers={{
-              click: () => onCafeSelect?.(cafe),
-            }}
-          >
-            <Popup>
-              <div className="cafe-popup">
-                <strong
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "14px",
-                  }}
-                >
-                  {cafe.name}
-                </strong>
+        {cafes.map((cafe) => {
+          const isSelected = cafe.id === selectedCafeId;
+          const isHovered = cafe.id === hoveredCafeId;
+          const icon = isSelected ? activeCafeIcon : isHovered ? hoveredCafeIcon : cafeIcon;
+          const zOffset = isSelected ? 1000 : isHovered ? 900 : 0;
+
+          return (
+            <Marker
+              key={cafe.id}
+              position={[cafe.lat, cafe.lng]}
+              icon={icon}
+              zIndexOffset={zOffset}
+              eventHandlers={{
+                click: () => onCafeSelect?.(cafe),
+                mouseover: () => onCafeHover?.(cafe.id),
+                mouseout: () => onCafeHover?.(null),
+              }}
+            >
+              <Popup>
+                <div className="cafe-popup">
+                  <strong
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {cafe.name}
+                  </strong>
+
                 {cafe.tags.opening_hours && (
                   <p
                     className="text-micro"
@@ -343,8 +382,11 @@ export default function Map({ onCafesLoaded, onCafeSelect, selectedCafeId, flyTo
               </div>
             </Popup>
           </Marker>
-        ))}
-      </MapContainer>
+        );
+      })}
+    </MapContainer>
+
+
 
       {/* Cafe count badge */}
       <div className="map-cafe-count">
