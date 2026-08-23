@@ -113,7 +113,7 @@ function FlyToLocation({ lat, lng }: { lat: number; lng: number }) {
 
   useEffect(() => {
     if (!hasFlown.current) {
-      map.flyTo([lat, lng], 15, { duration: 1.5 });
+      map.flyTo([lat, lng], 15, { duration: 1.2, easeLinearity: 0.25 });
       hasFlown.current = true;
     }
   }, [map, lat, lng]);
@@ -157,7 +157,7 @@ function MapResizeNotifier({ isSidebarOpen }: { isSidebarOpen?: boolean }) {
 }
 
 /* -------------------------------------------------------
-   Fly to a target location (triggered by search)
+   Smoothly navigate to a target location (calm & non-dizzying)
    ------------------------------------------------------- */
 function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
   const map = useMap();
@@ -166,11 +166,34 @@ function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
   useEffect(() => {
     if (!flyTo || flyTo.key === prevKeyRef.current) return;
     prevKeyRef.current = flyTo.key;
-    map.flyTo([flyTo.lat, flyTo.lng], 15, { duration: 1.5 });
+
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+    const targetLatLng = L.latLng(flyTo.lat, flyTo.lng);
+    const distanceMeters = currentCenter.distanceTo(targetLatLng);
+
+    // If the target is close (e.g. clicking a pin on the current map)
+    // or if the map is already zoomed in (zoom >= 13):
+    // Use a gentle, smooth panTo glide without parabolic zoom diving!
+    if (distanceMeters < 5000 && currentZoom >= 13) {
+      map.panTo([flyTo.lat, flyTo.lng], {
+        animate: true,
+        duration: 0.75,
+        easeLinearity: 0.3,
+      });
+    } else {
+      // For far away jumps (e.g. searching another city across provinces/countries),
+      // use a smooth, gentle flyTo with reduced speed so it doesn't whip around
+      map.flyTo([flyTo.lat, flyTo.lng], Math.max(currentZoom, 15), {
+        duration: 1.2,
+        easeLinearity: 0.25,
+      });
+    }
   }, [map, flyTo]);
 
   return null;
 }
+
 
 export default function Map({
   onCafesLoaded,
