@@ -543,12 +543,12 @@ function MapViewContent() {
         <Map
           onCafesLoaded={setCafes}
           onCafeSelect={handleCafeSelect}
-          onCafeHover={setHoveredCafeId}
           selectedCafeId={selectedCafe?.id ?? null}
           hoveredCafeId={hoveredCafeId}
           flyTo={flyTo}
           isSidebarOpen={isSidebarOpen}
         />
+
       </div>
 
       {/* Add shop modal */}

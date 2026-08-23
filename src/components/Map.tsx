@@ -39,30 +39,31 @@ function createCafeIcon() {
 function createActiveCafeIcon() {
   return L.divIcon({
     className: "cafe-marker cafe-marker--active",
-    html: `<svg width="34" height="44" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 12px rgba(193,104,47,0.6));">
+    html: `<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.268 21.732 0 14 0z" fill="var(--color-accent, #C1682F)"/>
-      <circle cx="14" cy="13" r="7" fill="#FFFFFF"/>
-      <text x="14" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
+      <circle cx="14" cy="13" r="6.5" fill="#FFFFFF"/>
+      <text x="14" y="16.5" text-anchor="middle" font-size="10.5" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
     </svg>`,
-    iconSize: [34, 44],
-    iconAnchor: [17, 44],
-    popupAnchor: [0, -44],
+    iconSize: [28, 38],
+    iconAnchor: [14, 38],
+    popupAnchor: [0, -38],
   });
 }
 
 function createHoveredCafeIcon() {
   return L.divIcon({
     className: "cafe-marker cafe-marker--hovered",
-    html: `<svg width="34" height="44" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+    html: `<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.268 21.732 0 14 0z" fill="var(--color-accent, #C1682F)"/>
-      <circle cx="14" cy="13" r="7" fill="#FFFFFF"/>
-      <text x="14" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
+      <circle cx="14" cy="13" r="6.5" fill="#FFFFFF"/>
+      <text x="14" y="16.5" text-anchor="middle" font-size="10.5" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
     </svg>`,
-    iconSize: [34, 44],
-    iconAnchor: [17, 44],
-    popupAnchor: [0, -44],
+    iconSize: [28, 38],
+    iconAnchor: [14, 38],
+    popupAnchor: [0, -38],
   });
 }
+
 
 
 function createUserIcon() {
@@ -133,7 +134,6 @@ interface FlyToTarget {
 interface MapProps {
   onCafesLoaded?: (cafes: CafeData[]) => void;
   onCafeSelect?: (cafe: CafeData) => void;
-  onCafeHover?: (cafeId: number | string | null) => void;
   selectedCafeId?: number | null;
   hoveredCafeId?: number | string | null;
   flyTo?: FlyToTarget | null;
@@ -175,12 +175,12 @@ function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
 export default function Map({
   onCafesLoaded,
   onCafeSelect,
-  onCafeHover,
   selectedCafeId,
   hoveredCafeId,
   flyTo,
   isSidebarOpen,
 }: MapProps) {
+
   const [cafes, setCafes] = useState<CafeData[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -348,10 +348,9 @@ export default function Map({
               zIndexOffset={zOffset}
               eventHandlers={{
                 click: () => onCafeSelect?.(cafe),
-                mouseover: () => onCafeHover?.(cafe.id),
-                mouseout: () => onCafeHover?.(null),
               }}
             >
+
               <Popup>
                 <div className="cafe-popup">
                   <strong

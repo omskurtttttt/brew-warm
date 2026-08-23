@@ -834,23 +834,29 @@ a[target="_blank"]::after {
 .cafe-marker {
   background: none !important;
   border: none !important;
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), filter 200ms ease;
+  transform-origin: 50% 100%;
+  cursor: pointer;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), filter 220ms ease;
+}
+
+.cafe-marker:hover {
+  z-index: 1000 !important;
+  transform: scale(1.18);
+  filter: drop-shadow(0 4px 14px rgba(193, 104, 47, 0.85)) !important;
 }
 
 .cafe-marker--hovered {
   z-index: 1000 !important;
-  filter: drop-shadow(0 0 14px rgba(193, 104, 47, 0.85)) !important;
-  animation: marker-bounce 600ms cubic-bezier(0.16, 1, 0.3, 1) infinite alternate !important;
+  transform: scale(1.22);
+  filter: drop-shadow(0 4px 16px rgba(193, 104, 47, 0.95)) !important;
 }
 
-@keyframes marker-bounce {
-  0% {
-    transform: translateY(0) scale(1.05);
-  }
-  100% {
-    transform: translateY(-8px) scale(1.18);
-  }
+.cafe-marker--active {
+  z-index: 1001 !important;
+  transform: scale(1.25);
+  filter: drop-shadow(0 6px 18px rgba(193, 104, 47, 1)) !important;
 }
+
 
 .user-marker {
   background: none !important;
