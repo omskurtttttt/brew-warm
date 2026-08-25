@@ -34,6 +34,7 @@ export default function ShopDetail({
   onToggleFavorite,
 }: ShopDetailProps) {
   const [copied, setCopied] = useState(false);
+  const [showDirectionsMenu, setShowDirectionsMenu] = useState(false);
   const { showToast } = useToast();
 
   const hasHours = !!cafe.tags.opening_hours;
@@ -45,9 +46,15 @@ export default function ShopDetail({
   // Close on Escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        if (showDirectionsMenu) {
+          setShowDirectionsMenu(false);
+        } else {
+          onClose();
+        }
+      }
     },
-    [onClose]
+    [onClose, showDirectionsMenu]
   );
 
   useEffect(() => {
@@ -55,8 +62,18 @@ export default function ShopDetail({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  // Directions URL (Google Maps)
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${cafe.lat},${cafe.lng}`;
+  // Navigation URLs
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${cafe.lat},${cafe.lng}`;
+  const appleMapsUrl = `https://maps.apple.com/?daddr=${cafe.lat},${cafe.lng}&dirflg=d`;
+  const wazeUrl = `https://waze.com/ul?ll=${cafe.lat},${cafe.lng}&navigate=yes`;
+
+  // Copy GPS Coordinates
+  function handleCopyCoords() {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(`${cafe.lat.toFixed(5)}, ${cafe.lng.toFixed(5)}`);
+      showToast("GPS coordinates copied to clipboard! 📍", "map");
+    }
+  }
 
   // Safe website parser
   const safeWebsiteUrl = (() => {
@@ -104,8 +121,6 @@ export default function ShopDetail({
     }
   }
 
-
-
   return (
     <div className="shop-detail-panel entrance-stagger">
       {/* Top Navigation Bar */}
@@ -144,7 +159,6 @@ export default function ShopDetail({
         </span>
       </div>
 
-
       {/* Main Title & Status */}
       <div style={{ marginTop: "1rem", marginBottom: "0.75rem" }}>
         <h1 className="text-h1" style={{ fontSize: "1.65rem", lineHeight: 1.15 }}>
@@ -167,16 +181,23 @@ export default function ShopDetail({
 
       {/* Action Buttons Row */}
       <div className="shop-detail-panel__actions">
-        {/* Directions */}
-        <a
-          href={directionsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="shop-detail-panel__action-btn"
+        {/* Directions Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setShowDirectionsMenu(!showDirectionsMenu)}
+          className={`shop-detail-panel__action-btn ${showDirectionsMenu ? "shop-detail-panel__action-btn--active" : ""}`}
+          style={{
+            backgroundColor: showDirectionsMenu ? "var(--color-accent)" : "var(--color-surface)",
+            color: showDirectionsMenu ? "#ffffff" : "var(--color-text-primary)",
+            borderColor: showDirectionsMenu ? "var(--color-accent)" : "var(--color-border)",
+            position: "relative",
+          }}
+          aria-expanded={showDirectionsMenu}
+          aria-label="Get directions to cafe"
         >
-          <CompassIcon size={18} color="var(--color-accent)" />
-          <span>directions</span>
-        </a>
+          <CompassIcon size={18} color={showDirectionsMenu ? "#ffffff" : "var(--color-accent)"} />
+          <span>directions ▾</span>
+        </button>
 
         {/* Save / Favorite */}
         {onToggleFavorite && (
@@ -207,12 +228,229 @@ export default function ShopDetail({
         </button>
       </div>
 
+      {/* 🧭 Directions Hub Dropdown / Options Card */}
+      {showDirectionsMenu && (
+        <div
+          style={{
+            marginTop: "0.875rem",
+            padding: "1rem",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-accent)",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "0 6px 20px -4px rgba(var(--rgb-accent), 0.2)",
+            animation: "fade-in 200ms ease",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <span
+              className="text-micro"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontWeight: 700,
+                color: "var(--color-accent)",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+              }}
+            >
+              🧭 Choose Navigation App
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowDirectionsMenu(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--color-text-tertiary)",
+                fontSize: "1rem",
+                cursor: "pointer",
+                padding: "2px 6px",
+              }}
+              aria-label="Close directions menu"
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {/* Google Maps Option */}
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                backgroundColor: "var(--color-bg)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
+                textDecoration: "none",
+                color: "var(--color-text-primary)",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-accent)";
+                e.currentTarget.style.transform = "translateX(2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.transform = "translateX(0)";
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "1.1rem" }}>🗺️</span>
+                <div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", fontWeight: 600 }}>
+                    Google Maps
+                  </div>
+                  <div className="text-micro" style={{ color: "var(--color-text-tertiary)", fontSize: "0.68rem" }}>
+                    Web, Android & iOS Navigation
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "var(--color-text-tertiary)" }}>↗</span>
+            </a>
+
+            {/* Apple Maps Option */}
+            <a
+              href={appleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                backgroundColor: "var(--color-bg)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
+                textDecoration: "none",
+                color: "var(--color-text-primary)",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-accent)";
+                e.currentTarget.style.transform = "translateX(2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.transform = "translateX(0)";
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "1.1rem" }}>🍏</span>
+                <div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", fontWeight: 600 }}>
+                    Apple Maps
+                  </div>
+                  <div className="text-micro" style={{ color: "var(--color-text-tertiary)", fontSize: "0.68rem" }}>
+                    Native iOS & macOS Navigation
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "var(--color-text-tertiary)" }}>↗</span>
+            </a>
+
+            {/* Waze Option */}
+            <a
+              href={wazeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                backgroundColor: "var(--color-bg)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
+                textDecoration: "none",
+                color: "var(--color-text-primary)",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-accent)";
+                e.currentTarget.style.transform = "translateX(2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.transform = "translateX(0)";
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "1.1rem" }}>🚗</span>
+                <div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", fontWeight: 600 }}>
+                    Waze
+                  </div>
+                  <div className="text-micro" style={{ color: "var(--color-text-tertiary)", fontSize: "0.68rem" }}>
+                    Real-time traffic & police alerts
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "var(--color-text-tertiary)" }}>↗</span>
+            </a>
+
+            {/* Copy Coordinates Option */}
+            <button
+              type="button"
+              onClick={handleCopyCoords}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                backgroundColor: "var(--color-bg)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
+                cursor: "pointer",
+                color: "var(--color-text-primary)",
+                textAlign: "left",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-accent)";
+                e.currentTarget.style.transform = "translateX(2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.transform = "translateX(0)";
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "1.1rem" }}>📋</span>
+                <div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", fontWeight: 600 }}>
+                    Copy GPS Coordinates
+                  </div>
+                  <div className="text-micro" style={{ color: "var(--color-text-tertiary)", fontSize: "0.68rem" }}>
+                    {cafe.lat.toFixed(5)}, {cafe.lng.toFixed(5)}
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: "0.72rem", color: "var(--color-accent)", fontFamily: "var(--font-mono)" }}>
+                copy
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
       <hr className="divider" style={{ margin: "1.25rem 0" }} />
 
       {/* Section: Overview Details */}
       <p className="section-header" style={{ marginBottom: "0.75rem" }}>
         01 — overview
       </p>
+
 
       <div className="shop-detail__grid" style={{ gap: "0.875rem" }}>
         {/* Address / Location */}
