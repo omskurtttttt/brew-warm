@@ -71,12 +71,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
         <main id="main-content">{children}</main>
       </body>
+
     </html>
   );
 }

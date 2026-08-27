@@ -272,7 +272,13 @@ function MapViewContent() {
   return (
     <div className={`split-layout ${isSidebarOpen ? "" : "split-layout--collapsed"}`}>
       {/* Side panel */}
-      <aside className="split-layout__panel" aria-label="Cafe list" style={{ position: "relative" }}>
+      <aside
+        suppressHydrationWarning
+        className="split-layout__panel"
+        aria-label="Cafe list"
+        style={{ position: "relative" }}
+      >
+
         <CoffeeStain position="top-right" opacity={0.06} size={220} />
 
         {/* Render Google Maps style detail view inside sidebar when a shop is selected */}
