@@ -294,272 +294,226 @@ function MapViewContent() {
           />
         ) : (
           <>
-            {/* Header with Search */}
+            {/* Header with Search & Navigation */}
             <div className="sidebar-header">
-              <SearchBar
-                onLocationSelect={handleSearchSelect}
-              />
-
-              {/* Navigation Bar / Tabs */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: "0.85rem",
-                  marginBottom: "0.25rem",
-                }}
-              >
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button
-                    className={`pill ${activeTab === "nearby" ? "pill--filter-active" : ""}`}
-                    onClick={() => setActiveTab("nearby")}
-                    style={{ cursor: "pointer" }}
-                  >
-                    nearby
-                  </button>
-                  <button
-                    className={`pill ${activeTab === "saved" ? "pill--filter-active" : ""}`}
-                    onClick={() => setActiveTab("saved")}
-                    style={{ cursor: "pointer" }}
-                  >
-                    saved ({favoriteIds.size})
-                  </button>
+              {/* 1. App Brand & Utility Toolbar */}
+              <div className="sidebar-brand-row">
+                <div className="sidebar-brand">
+                  <div className="sidebar-brand__logo">☕</div>
+                  <div className="sidebar-brand__text">
+                    <span className="sidebar-brand__name">brew warm</span>
+                    <span className="sidebar-brand__tagline">café radar</span>
+                  </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <div className="sidebar-utility-actions">
+                  <AmbientPlayer />
+                  <ThemeToggle />
                   <button
                     type="button"
                     onClick={() => setShowOnboarding(true)}
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "50%",
-                      backgroundColor: "var(--color-surface)",
-                      border: "1px solid var(--color-border)",
-                      color: "var(--color-text-secondary)",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "var(--text-micro)",
-                      fontWeight: 700,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      transition: "all 150ms ease",
-                    }}
-                    title="Welcome Guide & Tour"
+                    className="sidebar-utility-btn"
+                    title="Welcome Guide & Tour (?)"
                     aria-label="Open Welcome Guide"
                   >
                     ?
                   </button>
-                  <ThemeToggle />
                   <button
+                    type="button"
                     onClick={() => setShowAddForm(true)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      padding: "4px 10px",
-                      borderRadius: "var(--radius-pill)",
-                      backgroundColor: "transparent",
-                      border: "1px solid var(--color-border)",
-                      color: "var(--color-accent)",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "var(--text-micro)",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      transition: "all 150ms ease",
-                    }}
+                    className="sidebar-add-btn"
+                    title="Add a café to the community map"
+                    aria-label="Add a café"
                   >
-                    + add café
+                    + add
                   </button>
                 </div>
               </div>
+
+              {/* 2. Sleek Search Bar */}
+              <SearchBar onLocationSelect={handleSearchSelect} />
+
+              {/* 3. Segmented Navigation Tabs & Serendipity Surprise */}
+              <div className="sidebar-nav-row">
+                <div className="sidebar-segmented-control" role="tablist">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === "nearby"}
+                    className={`sidebar-tab ${activeTab === "nearby" ? "sidebar-tab--active" : ""}`}
+                    onClick={() => setActiveTab("nearby")}
+                  >
+                    <span>nearby</span>
+                    <span className="sidebar-tab__badge">{filteredCafes.length}</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === "saved"}
+                    className={`sidebar-tab ${activeTab === "saved" ? "sidebar-tab--active" : ""}`}
+                    onClick={() => setActiveTab("saved")}
+                  >
+                    <span>saved</span>
+                    <span className="sidebar-tab__badge">{favoriteIds.size}</span>
+                  </button>
+                </div>
+
+                {activeTab === "nearby" && (
+                  <button
+                    type="button"
+                    onClick={handleSurpriseMe}
+                    className="sidebar-surprise-btn"
+                    title="Pick a random coffee spot nearby"
+                  >
+                    <SparklesIcon size={12} color="var(--color-accent)" />
+                    <span>surprise me</span>
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Tab content */}
-            {activeTab === "nearby" ? (
-              <>
-                {/* Section title & count */}
-                <div
-                  style={{
-                    padding: "0 var(--card-pad)",
-                    marginBottom: "0.5rem",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "baseline",
-                  }}
-                >
-                  <p className="section-header">01 — nearby</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <button
-                      type="button"
-                      onClick={handleSurpriseMe}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        background: "none",
-                        border: "none",
-                        padding: 0,
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "var(--text-micro)",
-                        color: "var(--color-text-secondary)",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        textUnderlineOffset: "3px",
-                      }}
-                      title="Pick a random coffee spot nearby"
-                    >
-                      <SparklesIcon size={13} color="var(--color-accent)" />
-                      <span>surprise me</span>
-                    </button>
-                    <AmbientPlayer />
+            {/* Tab content in dedicated scroll container */}
+            <div className="sidebar-scroll-content">
+              {activeTab === "nearby" ? (
+                <>
+                  {/* Filter tags toolbar */}
+                  <FilterBar
+                    activeFilters={activeFilters}
+                    onToggle={handleFilterToggle}
+                    cafeCount={filteredCafes.length}
+                  />
+
+                  {/* Café list */}
+                  <div className="cafe-list">
+                    {filteredCafes.map((cafe, i) => (
+                      <ShopCard
+                        key={cafe.id}
+                        cafe={cafe}
+                        index={i}
+                        isActive={selectedCafe?.id === cafe.id}
+                        isHovered={hoveredCafeId === cafe.id}
+                        onSelect={handleCafeSelect}
+                        onHover={setHoveredCafeId}
+                        isFavorite={favoriteIds.has(cafe.id)}
+                        onToggleFavorite={handleToggleFavorite}
+                      />
+                    ))}
+
+                    {filteredCafes.length === 0 && (
+                      <div
+                        className="empty-state"
+                        style={{
+                          padding: "2rem 1.25rem",
+                          backgroundColor: "var(--color-surface)",
+                          border: "1px dashed var(--color-border)",
+                          borderRadius: "var(--radius-md)",
+                          textAlign: "center",
+                          marginTop: "0.5rem",
+                        }}
+                      >
+                        {activeFilters.size > 0 ? (
+                          <>
+                            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>☕🔍</div>
+                            <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
+                              no cafés match your filters
+                            </p>
+                            <p className="text-micro" style={{ maxWidth: "260px", margin: "0 auto 1.25rem", lineHeight: 1.4 }}>
+                              {cafes.length} total cafés found in this area, but none match your active filters.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setActiveFilters(new Set())}
+                              className="pill pill--filter-active"
+                              style={{
+                                cursor: "pointer",
+                                padding: "8px 16px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.72rem",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <span>↺ clear all filters</span>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🗺️☕</div>
+                            <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
+                              quiet corner of the map
+                            </p>
+                            <p className="text-micro" style={{ maxWidth: "260px", margin: "0 auto 1rem", lineHeight: 1.4 }}>
+                              Pan the map to explore new areas, or jump directly to popular café hubs:
+                            </p>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "center", marginBottom: "1.25rem" }}>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(13.1391, 123.7438)}
+                                className="pill"
+                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                              >
+                                🌋 Legazpi
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(14.5547, 121.0494)}
+                                className="pill"
+                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                              >
+                                🏙️ BGC
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(14.5547, 121.0244)}
+                                className="pill"
+                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                              >
+                                ☕ Makati
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(10.3157, 123.8854)}
+                                className="pill"
+                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                              >
+                                🌴 Cebu
+                              </button>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowAddForm(true)}
+                              className="pill pill--filter-active"
+                              style={{
+                                cursor: "pointer",
+                                padding: "6px 14px",
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.72rem",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <span>+ add a café here</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                <div style={{ padding: "0 var(--card-pad)", marginBottom: "0.75rem" }}>
-                  <h1 className="text-h1" style={{ fontSize: "1.75rem" }}>
-                    cafés near you
-                  </h1>
-                </div>
-
-                {/* Filter tags */}
-                <FilterBar
-                  activeFilters={activeFilters}
-                  onToggle={handleFilterToggle}
-                  cafeCount={filteredCafes.length}
+                </>
+              ) : (
+                <FavoritesPanel
+                  sessionId={sessionId}
+                  onSelectShop={handleCafeSelect}
+                  onHoverShop={setHoveredCafeId}
+                  hoveredCafeId={hoveredCafeId}
+                  favoriteIds={favoriteIds}
+                  onToggleFavorite={handleToggleFavorite}
+                  onExploreCafes={() => setActiveTab("nearby")}
                 />
+              )}
+            </div>
 
-                {/* Café list */}
-                <div className="cafe-list">
-                  {filteredCafes.map((cafe, i) => (
-                    <ShopCard
-                      key={cafe.id}
-                      cafe={cafe}
-                      index={i}
-                      isActive={selectedCafe?.id === cafe.id}
-                      isHovered={hoveredCafeId === cafe.id}
-                      onSelect={handleCafeSelect}
-                      onHover={setHoveredCafeId}
-                      isFavorite={favoriteIds.has(cafe.id)}
-                      onToggleFavorite={handleToggleFavorite}
-                    />
-                  ))}
-
-                  {filteredCafes.length === 0 && (
-                    <div
-                      className="empty-state"
-                      style={{
-                        padding: "2rem 1.25rem",
-                        backgroundColor: "var(--color-surface)",
-                        border: "1px dashed var(--color-border)",
-                        borderRadius: "var(--radius-md)",
-                        textAlign: "center",
-                        marginTop: "0.5rem",
-                      }}
-                    >
-                      {activeFilters.size > 0 ? (
-                        <>
-                          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>☕🔍</div>
-                          <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
-                            no cafés match your filters
-                          </p>
-                          <p className="text-micro" style={{ maxWidth: "260px", margin: "0 auto 1.25rem", lineHeight: 1.4 }}>
-                            {cafes.length} total cafés found in this area, but none match your active filters.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => setActiveFilters(new Set())}
-                            className="pill pill--filter-active"
-                            style={{
-                              cursor: "pointer",
-                              padding: "8px 16px",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "6px",
-                              fontFamily: "var(--font-mono)",
-                              fontSize: "0.72rem",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <span>↺ clear all filters</span>
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🗺️☕</div>
-                          <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
-                            quiet corner of the map
-                          </p>
-                          <p className="text-micro" style={{ maxWidth: "260px", margin: "0 auto 1rem", lineHeight: 1.4 }}>
-                            Pan the map to explore new areas, or jump directly to popular café hubs:
-                          </p>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "center", marginBottom: "1.25rem" }}>
-                            <button
-                              type="button"
-                              onClick={() => handleSearchSelect(13.1391, 123.7438)}
-                              className="pill"
-                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
-                            >
-                              🌋 Legazpi
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleSearchSelect(14.5547, 121.0494)}
-                              className="pill"
-                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
-                            >
-                              🏙️ BGC
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleSearchSelect(14.5547, 121.0244)}
-                              className="pill"
-                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
-                            >
-                              ☕ Makati
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleSearchSelect(10.3157, 123.8854)}
-                              className="pill"
-                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
-                            >
-                              🌴 Cebu
-                            </button>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setShowAddForm(true)}
-                            className="pill pill--filter-active"
-                            style={{
-                              cursor: "pointer",
-                              padding: "6px 14px",
-                              fontFamily: "var(--font-mono)",
-                              fontSize: "0.72rem",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <span>+ add a café here</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <FavoritesPanel
-                sessionId={sessionId}
-                onSelectShop={handleCafeSelect}
-                onHoverShop={setHoveredCafeId}
-                hoveredCafeId={hoveredCafeId}
-                favoriteIds={favoriteIds}
-                onToggleFavorite={handleToggleFavorite}
-                onExploreCafes={() => setActiveTab("nearby")}
-              />
-            )}
 
           </>
         )}

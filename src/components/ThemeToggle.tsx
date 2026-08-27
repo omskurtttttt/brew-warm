@@ -36,13 +36,8 @@ export default function ThemeToggle() {
   if (!isMounted) {
     return (
       <div
-        style={{
-          width: "32px",
-          height: "32px",
-          borderRadius: "var(--radius-sm)",
-          backgroundColor: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
-        }}
+        className="sidebar-utility-btn"
+        style={{ opacity: 0.5 }}
       />
     );
   }
@@ -50,25 +45,13 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="theme-toggle"
+      className="sidebar-utility-btn"
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
       title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
       type="button"
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "32px",
-        height: "32px",
-        borderRadius: "var(--radius-sm)",
-        backgroundColor: "var(--color-surface)",
-        border: "1px solid var(--color-border)",
-        color: "var(--color-accent)",
-        cursor: "pointer",
-        transition: "all 200ms ease",
-      }}
     >
-      {theme === "light" ? <MoonIcon size={16} /> : <SunIcon size={16} />}
+      {theme === "light" ? <MoonIcon size={14} color="var(--color-accent)" /> : <SunIcon size={14} color="var(--color-accent)" />}
     </button>
   );
 }
+

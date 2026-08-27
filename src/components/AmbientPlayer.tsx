@@ -103,7 +103,6 @@ export default function AmbientPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const engineRef = useRef<AmbientSoundEngine | null>(null);
 
-
   useEffect(() => {
     engineRef.current = new AmbientSoundEngine();
     return () => {
@@ -122,27 +121,37 @@ export default function AmbientPlayer() {
   }
 
   return (
-    <div className="ambient-player" title="Café Ambient Soundscape (Gentle Rain & Warm Lofi Drone)">
-      <button
-        type="button"
-        onClick={togglePlay}
-        className={`ambient-player__btn ${isPlaying ? "ambient-player__btn--active" : ""}`}
-        aria-label={isPlaying ? "Mute café ambient sound" : "Play café ambient sound"}
-      >
-        <span className="ambient-player__icon">
-          {isPlaying ? "☕" : "🎧"}
-        </span>
-        <span className="ambient-player__label">
-          {isPlaying ? "café vibe: on" : "café vibe: off"}
-        </span>
-        {isPlaying && (
-          <span className="ambient-player__wave">
-            <span className="wave-bar" />
-            <span className="wave-bar" />
-            <span className="wave-bar" />
-          </span>
-        )}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={togglePlay}
+      className={`sidebar-utility-btn ${isPlaying ? "sidebar-utility-btn--active" : ""}`}
+      title={isPlaying ? "Mute café ambient soundscape" : "Play café ambient soundscape (rain & gentle lofi)"}
+      aria-label={isPlaying ? "Mute café ambient soundscape" : "Play café ambient soundscape"}
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <span style={{ fontSize: "0.85rem", lineHeight: 1 }}>
+        {isPlaying ? "☕" : "🎧"}
+      </span>
+      {isPlaying && (
+        <span
+          style={{
+            position: "absolute",
+            bottom: "2px",
+            right: "2px",
+            width: "5px",
+            height: "5px",
+            borderRadius: "50%",
+            backgroundColor: "var(--color-accent)",
+            boxShadow: "0 0 6px var(--color-accent)",
+          }}
+        />
+      )}
+    </button>
   );
 }
+
