@@ -442,17 +442,103 @@ function MapViewContent() {
                   ))}
 
                   {filteredCafes.length === 0 && (
-                    <div className="empty-state">
-                      <p className="text-accent-script" style={{ marginBottom: "0.5rem" }}>
-                        {cafes.length === 0
-                          ? "pan the map to discover cafés"
-                          : "no cafés match your filters"}
-                      </p>
-                      <p className="text-micro">
-                        {cafes.length === 0
-                          ? "we'll search openstreetmap as you explore"
-                          : `${cafes.length} total — try removing a filter`}
-                      </p>
+                    <div
+                      className="empty-state"
+                      style={{
+                        padding: "2rem 1.25rem",
+                        backgroundColor: "var(--color-surface)",
+                        border: "1px dashed var(--color-border)",
+                        borderRadius: "var(--radius-md)",
+                        textAlign: "center",
+                        marginTop: "0.5rem",
+                      }}
+                    >
+                      {activeFilters.size > 0 ? (
+                        <>
+                          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>☕🔍</div>
+                          <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
+                            no cafés match your filters
+                          </p>
+                          <p className="text-micro" style={{ maxWidth: "260px", margin: "0 auto 1.25rem", lineHeight: 1.4 }}>
+                            {cafes.length} total cafés found in this area, but none match your active filters.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setActiveFilters(new Set())}
+                            className="pill pill--filter-active"
+                            style={{
+                              cursor: "pointer",
+                              padding: "8px 16px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.72rem",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <span>↺ clear all filters</span>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🗺️☕</div>
+                          <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
+                            quiet corner of the map
+                          </p>
+                          <p className="text-micro" style={{ maxWidth: "260px", margin: "0 auto 1rem", lineHeight: 1.4 }}>
+                            Pan the map to explore new areas, or jump directly to popular café hubs:
+                          </p>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "center", marginBottom: "1.25rem" }}>
+                            <button
+                              type="button"
+                              onClick={() => handleSearchSelect(13.1391, 123.7438)}
+                              className="pill"
+                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                            >
+                              🌋 Legazpi
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSearchSelect(14.5547, 121.0494)}
+                              className="pill"
+                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                            >
+                              🏙️ BGC
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSearchSelect(14.5547, 121.0244)}
+                              className="pill"
+                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                            >
+                              ☕ Makati
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSearchSelect(10.3157, 123.8854)}
+                              className="pill"
+                              style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                            >
+                              🌴 Cebu
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowAddForm(true)}
+                            className="pill pill--filter-active"
+                            style={{
+                              cursor: "pointer",
+                              padding: "6px 14px",
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.72rem",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <span>+ add a café here</span>
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -465,8 +551,10 @@ function MapViewContent() {
                 hoveredCafeId={hoveredCafeId}
                 favoriteIds={favoriteIds}
                 onToggleFavorite={handleToggleFavorite}
+                onExploreCafes={() => setActiveTab("nearby")}
               />
             )}
+
           </>
         )}
       </aside>
