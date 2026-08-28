@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <!-- Warm terracotta gradient -->
+    <linearGradient id="appleBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D97A3E"/>
+      <stop offset="50%" stop-color="#C1682F"/>
+      <stop offset="100%" stop-color="#9C4717"/>
+    </linearGradient>
+
+    <!-- Warm steam glow -->
+    <linearGradient id="appleSteamGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#FBF6EE" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <!-- Porcelain cup gradient -->
+    <linearGradient id="appleCupGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F3ECE0"/>
+    </linearGradient>
+
+    <!-- Rich espresso crema -->
+    <linearGradient id="appleCoffeeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A3B1E"/>
+      <stop offset="50%" stop-color="#4A2612"/>
+      <stop offset="100%" stop-color="#321609"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Apple Touch Icon Squircle -->
+  <rect width="180" height="180" rx="42" ry="42" fill="url(#appleBgGrad)"/>
+
+  <!-- Inner border glow -->
+  <rect x="3" y="3" width="174" height="174" rx="40" ry="40" fill="none" stroke="#FFAE80" stroke-width="2" stroke-opacity="0.5"/>
+
+  <!-- Rising Stylized Steam Waves -->
+  <path d="M72 58C69 49 75 41 72 33" stroke="url(#appleSteamGrad)" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M90 53C87 44 93 36 90 28" stroke="url(#appleSteamGrad)" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M108 58C105 49 111 41 108 33" stroke="url(#appleSteamGrad)" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+  <!-- Cup Handle -->
+  <path d="M106 87H128C137.941 87 146 95.0589 146 105C146 114.941 137.941 123 128 123H106" fill="none" stroke="url(#appleCupGrad)" stroke-width="11" stroke-linecap="round"/>
+
+  <!-- Coffee Cup Body -->
+  <path d="M42 76H120V107C120 126.882 103.882 143 84 143H78C58.1178 143 42 126.882 42 107V76Z" fill="url(#appleCupGrad)"/>
+
+  <!-- Cup Rim Oval -->
+  <ellipse cx="81" cy="76" rx="39" ry="12.5" fill="#E8DCCB"/>
+
+  <!-- Rich Espresso Crema Surface -->
+  <ellipse cx="81" cy="76" rx="35" ry="10" fill="url(#appleCoffeeGrad)"/>
+
+  <!-- Latte Art Heart Glow -->
+  <path d="M81 80C77 74 71 74 71 77C71 80 75 83 81 86C87 83 91 80 91 77C91 74 85 74 81 80Z" fill="#FDF8F0" opacity="0.9"/>
+
+  <!-- Saucer / Plate -->
+  <path d="M33 143C33 140 50 137 81 137C112 137 129 140 129 143C129 148 107.5 152 81 152C54.5 152 33 148 33 143Z" fill="#E8DCCB" opacity="0.7"/>
+</svg>

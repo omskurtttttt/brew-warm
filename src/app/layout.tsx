@@ -36,12 +36,21 @@ export const metadata: Metadata = {
     "Discover nearby coffee shops on an interactive map. Free, open-source, powered by OpenStreetMap.",
   keywords: ["coffee", "café", "shop finder", "map", "OpenStreetMap", "specialty coffee"],
   metadataBase: new URL("https://brew-warm.vercel.app"),
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-icon.svg", type: "image/svg+xml" },
+    ],
+  },
   openGraph: {
     title: "Brew Warm — Coffee Shop Finder",
     description: "Discover nearby coffee shops on an interactive map.",
     type: "website",
     siteName: "Brew Warm",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "Brew Warm — Coffee Shop Finder",

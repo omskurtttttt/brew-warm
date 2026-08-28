@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Warm terracotta gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D97A3E"/>
+      <stop offset="50%" stop-color="#C1682F"/>
+      <stop offset="100%" stop-color="#9C4717"/>
+    </linearGradient>
+
+    <!-- Warm steam glow -->
+    <linearGradient id="steamGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#FBF6EE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <!-- Porcelain cup gradient -->
+    <linearGradient id="cupGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F3ECE0"/>
+    </linearGradient>
+
+    <!-- Rich espresso crema -->
+    <linearGradient id="coffeeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A3B1E"/>
+      <stop offset="50%" stop-color="#4A2612"/>
+      <stop offset="100%" stop-color="#321609"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Background Icon Container -->
+  <rect x="2" y="2" width="60" height="60" rx="16" ry="16" fill="url(#bgGrad)" stroke="#E89A6C" stroke-width="1.5"/>
+
+  <!-- Inner Soft Inset Glow -->
+  <rect x="3" y="3" width="58" height="58" rx="15" ry="15" fill="none" stroke="#FFAE80" stroke-width="1" stroke-opacity="0.4"/>
+
+  <!-- Rising Stylized Steam Waves -->
+  <path d="M25 21C24 18 26 15 25 12" stroke="url(#steamGrad)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M32 19C31 16 33 13 32 10" stroke="url(#steamGrad)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M39 21C38 18 40 15 39 12" stroke="url(#steamGrad)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Cup Handle -->
+  <path d="M38 31H46C49.3137 31 52 33.6863 52 37C52 40.3137 49.3137 43 46 43H38" fill="none" stroke="url(#cupGrad)" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Coffee Cup Body -->
+  <path d="M15 27H43V38C43 45.1797 37.1797 51 30 51H28C20.8203 51 15 45.1797 15 38V27Z" fill="url(#cupGrad)"/>
+
+  <!-- Cup Rim Oval -->
+  <ellipse cx="29" cy="27" rx="14" ry="4.5" fill="#E8DCCB"/>
+
+  <!-- Rich Espresso Crema Surface -->
+  <ellipse cx="29" cy="27" rx="12.5" ry="3.6" fill="url(#coffeeGrad)"/>
+
+  <!-- Latte Art Heart Glow -->
+  <path d="M29 28.5C27.5 26.5 25.5 26.5 25.5 27.5C25.5 28.5 27 29.5 29 30.5C31 29.5 32.5 28.5 32.5 27.5C32.5 26.5 30.5 26.5 29 28.5Z" fill="#FDF8F0" opacity="0.85"/>
+
+  <!-- Saucer / Plate -->
+  <path d="M12 51C12 50 18 49 29 49C40 49 46 50 46 51C46 52.8 38.5 54 29 54C19.5 54 12 52.8 12 51Z" fill="#E8DCCB" opacity="0.6"/>
+</svg>
