@@ -28,9 +28,10 @@ export async function GET(request: NextRequest) {
         shop: shops,
       })
       .from(favorites)
-      .innerJoin(shops, eq(favorites.shopId, shops.id))
+      .leftJoin(shops, eq(favorites.shopId, shops.id))
       .where(eq(favorites.sessionId, sessionId))
       .orderBy(favorites.createdAt);
+
 
     return Response.json({ favorites: results });
   } catch (err) {
