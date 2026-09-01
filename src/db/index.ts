@@ -7,12 +7,18 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export function getDb() {
   if (_db) return _db;
 
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl =
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.STORAGE_URL ||
+    process.env.NEON_DATABASE_URL;
+
   if (!databaseUrl) {
     throw new Error(
-      "DATABASE_URL is not set. Please add your Neon connection string to environment variables."
+      "Database connection string is not set. Please set DATABASE_URL (or POSTGRES_URL) in your environment variables."
     );
   }
+
 
   const sql = neon(databaseUrl);
   _db = drizzle(sql, { schema });
