@@ -4,12 +4,6 @@
    within a bounding box.
    ============================================================ */
 
-const OVERPASS_ENDPOINTS = [
-  "https://overpass-api.de/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
-  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-];
-
 export interface CafeData {
   id: number;
   name: string;
@@ -36,62 +30,28 @@ export interface OverpassBounds {
   east: number;
 }
 
-/**
- * Build an Overpass QL query for cafes within a bounding box.
- */
-function buildQuery(bounds: OverpassBounds): string {
-  const bbox = `${bounds.south},${bounds.west},${bounds.north},${bounds.east}`;
-  return `
-    [out:json][timeout:10];
-    (
-      node["amenity"="cafe"](${bbox});
-      way["amenity"="cafe"](${bbox});
-      relation["amenity"="cafe"](${bbox});
-    );
-    out center body;
-  `;
-}
 
 /**
- * Fetch cafes from Overpass API with multi-endpoint fallback,
- * and merge with local community-submitted cafes from /api/shops.
+ * Fetch cafes via our server-side proxy route (/api/osm).
+ * The server attaches an OSM-compliant User-Agent, handles multi-mirror fallback,
+ * queries both OpenStreetMap and the local database, and caches results.
  */
 export async function fetchCafes(bounds: OverpassBounds): Promise<CafeData[]> {
-  const query = buildQuery(bounds);
-  let osmCafes: CafeData[] = [];
-  let fetchError: Error | null = null;
+  const url = `/api/osm?south=${bounds.south.toFixed(5)}&west=${bounds.west.toFixed(5)}&north=${bounds.north.toFixed(5)}&east=${bounds.east.toFixed(5)}`;
 
-  // Try each Overpass mirror sequentially
-  for (const endpoint of OVERPASS_ENDPOINTS) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `data=${encodeURIComponent(query)}`,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && Array.isArray(data.elements)) {
-          osmCafes = parseElements(data.elements);
-          fetchError = null;
-          break; // Success, exit loop
-        }
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.cafes)) {
+        return data.cafes;
       }
-    } catch (err) {
-      clearTimeout(timeoutId);
-      fetchError = err instanceof Error ? err : new Error("Failed to fetch Overpass data");
     }
+  } catch {
+    // Network error on /api/osm: try direct /api/shops fallback
   }
 
-  // Fetch local user-submitted shops from our database
-  let localCafes: CafeData[] = [];
+  // Fallback to local community database directly
   try {
     const centerLat = (bounds.south + bounds.north) / 2;
     const centerLng = (bounds.west + bounds.east) / 2;
@@ -104,7 +64,7 @@ export async function fetchCafes(bounds: OverpassBounds): Promise<CafeData[]> {
     if (localRes.ok) {
       const localData = await localRes.json();
       if (Array.isArray(localData.shops)) {
-        localCafes = localData.shops.map((s: {
+        return localData.shops.map((s: {
           id: number;
           name: string;
           lat: number;
@@ -134,61 +94,9 @@ export async function fetchCafes(bounds: OverpassBounds): Promise<CafeData[]> {
       }
     }
   } catch {
-    // Ignore local fetch errors if offline or misconfigured
+    // Fail soft
   }
 
-  // Merge OSM + Local Community Cafes (deduplicating by ID/coordinates)
-  const combined = [...localCafes, ...osmCafes];
-  const seen = new Set<string>();
-  const uniqueCafes: CafeData[] = [];
-
-  for (const cafe of combined) {
-    const key = `${cafe.lat.toFixed(4)},${cafe.lng.toFixed(4)}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniqueCafes.push(cafe);
-    }
-  }
-
-  // If both OSM failed and local is empty, throw a readable error
-  if (fetchError && uniqueCafes.length === 0) {
-    throw new Error("Temporary network timeout fetching OpenStreetMap data. Try panning the map.");
-  }
-
-  return uniqueCafes;
+  return [];
 }
 
-
-interface OverpassElement {
-  type: "node" | "way" | "relation";
-  id: number;
-  lat?: number;
-  lon?: number;
-  center?: { lat: number; lon: number };
-  tags?: Record<string, string>;
-}
-
-/**
- * Parse raw Overpass elements into our CafeData shape.
- * Nodes have lat/lon directly; ways/relations use the `center` field.
- */
-function parseElements(elements: OverpassElement[]): CafeData[] {
-  const cafes: CafeData[] = [];
-
-  for (const el of elements) {
-    const lat = el.lat ?? el.center?.lat;
-    const lng = el.lon ?? el.center?.lon;
-
-    if (lat == null || lng == null) continue;
-
-    cafes.push({
-      id: el.id,
-      name: el.tags?.name ?? "Unnamed Café",
-      lat,
-      lng,
-      tags: el.tags ?? {},
-    });
-  }
-
-  return cafes;
-}
