@@ -133,16 +133,19 @@ export async function POST(request: NextRequest) {
         name: name.trim().slice(0, 150),
         lat,
         lng,
+        location: sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`,
         address: typeof address === "string" ? address.trim().slice(0, 300) || null : null,
-        openingHours: typeof openingHours === "string" ? openingHours.trim().slice(0, 200) || null : null,
-        cuisine: typeof cuisine === "string" ? cuisine.trim().slice(0, 100) || null : null,
-        phone: typeof phone === "string" ? phone.trim().slice(0, 50) || null : null,
-        website: cleanWebsite,
-        internetAccess: typeof internetAccess === "string" ? internetAccess.trim().slice(0, 20) || null : null,
-        outdoorSeating: typeof outdoorSeating === "string" ? outdoorSeating.trim().slice(0, 20) || null : null,
-        source: "user",
+        tags: {
+          opening_hours: typeof openingHours === "string" ? openingHours.trim().slice(0, 200) || undefined : undefined,
+          cuisine: typeof cuisine === "string" ? cuisine.trim().slice(0, 100) || undefined : undefined,
+          phone: typeof phone === "string" ? phone.trim().slice(0, 50) || undefined : undefined,
+          website: cleanWebsite || undefined,
+          internet_access: typeof internetAccess === "string" ? internetAccess.trim().slice(0, 20) || undefined : undefined,
+          outdoor_seating: typeof outdoorSeating === "string" ? outdoorSeating.trim().slice(0, 20) || undefined : undefined,
+        },
       })
       .returning();
+
 
     return Response.json({ shop: inserted }, { status: 201 });
   } catch (err) {

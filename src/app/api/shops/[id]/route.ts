@@ -60,18 +60,8 @@ export async function PATCH(
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const allowedFields = [
-    "name",
-    "address",
-    "openingHours",
-    "cuisine",
-    "phone",
-    "website",
-    "internetAccess",
-    "outdoorSeating",
-  ] as const;
-
   const maxLengths: Record<string, number> = {
+
     name: 150,
     address: 300,
     openingHours: 200,
@@ -82,8 +72,22 @@ export async function PATCH(
     outdoorSeating: 20,
   };
 
-  const updates: Record<string, string | null> = {};
-  for (const field of allowedFields) {
+  const directFields = ["name", "address"] as const;
+  const tagFields = ["openingHours", "cuisine", "phone", "website", "internetAccess", "outdoorSeating"] as const;
+
+  const directUpdates: Record<string, string | null> = {};
+  const tagUpdates: Record<string, string | undefined> = {};
+
+  for (const field of directFields) {
+    if (field in body) {
+      const value = body[field];
+      directUpdates[field] = typeof value === "string" && value.trim().length > 0 
+        ? value.trim().slice(0, maxLengths[field] ?? 200) 
+        : null;
+    }
+  }
+
+  for (const field of tagFields) {
     if (field in body) {
       const value = body[field];
       if (typeof value === "string" && value.trim().length > 0) {
@@ -91,28 +95,33 @@ export async function PATCH(
         if (field === "website" && !trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
           return Response.json({ error: "website must begin with http:// or https://" }, { status: 400 });
         }
-        updates[field] = trimmed.slice(0, maxLengths[field] ?? 200);
-      } else {
-        updates[field] = null;
+        tagUpdates[field] = trimmed.slice(0, maxLengths[field] ?? 200);
       }
     }
   }
 
-
-  if (Object.keys(updates).length === 0) {
+  if (Object.keys(directUpdates).length === 0 && Object.keys(tagUpdates).length === 0) {
     return Response.json(
       { error: "No valid fields to update" },
       { status: 400 }
     );
   }
 
-  // Always update the timestamp
-  const updateData = { ...updates, updatedAt: new Date() };
-
   try {
+    // If updating tags, fetch existing shop first to merge
+    let mergedTags: Record<string, string | undefined> | undefined = undefined;
+    if (Object.keys(tagUpdates).length > 0) {
+      const [current] = await db.select({ tags: shops.tags }).from(shops).where(eq(shops.id, shopId)).limit(1);
+      mergedTags = { ...(current?.tags || {}), ...tagUpdates };
+    }
+
     const [updated] = await db
       .update(shops)
-      .set(updateData)
+      .set({
+        ...directUpdates,
+        ...(mergedTags ? { tags: mergedTags } : {}),
+        updatedAt: new Date(),
+      })
       .where(eq(shops.id, shopId))
       .returning();
 
@@ -128,4 +137,5 @@ export async function PATCH(
       { status: 500 }
     );
   }
+
 }

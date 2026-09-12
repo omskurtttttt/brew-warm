@@ -119,18 +119,19 @@ export async function GET(request: NextRequest) {
       lat: s.lat,
       lng: s.lng,
       tags: {
-        opening_hours: s.openingHours || undefined,
-        cuisine: s.cuisine || undefined,
-        phone: s.phone || undefined,
-        website: s.website || undefined,
-        internet_access: s.internetAccess || undefined,
-        outdoor_seating: s.outdoorSeating || undefined,
+        opening_hours: s.tags?.opening_hours || undefined,
+        cuisine: s.tags?.cuisine || undefined,
+        phone: s.tags?.phone || undefined,
+        website: s.tags?.website || undefined,
+        internet_access: s.tags?.internet_access || undefined,
+        outdoor_seating: s.tags?.outdoor_seating || undefined,
         address: s.address || undefined,
       },
     }));
   } catch {
     // Database query error: fail soft so OSM cafes are still returned
   }
+
 
   // Combine and deduplicate cafes by latitude/longitude proximity
   const seen = new Set<string>();

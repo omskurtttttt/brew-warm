@@ -47,6 +47,8 @@ SKILL.md
 skills-lock.json
 .agents/
 CLAUDE.md
+GEMINI.md
+
 
 # TypeScript
 *.tsbuildinfo
