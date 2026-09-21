@@ -33,7 +33,12 @@ async function runMigration() {
     ALTER COLUMN osm_id TYPE text USING osm_id::text;
   `;
   await sql`
-    CREATE UNIQUE INDEX IF NOT EXISTS shops_osm_id_idx ON shops (osm_id) WHERE osm_id IS NOT NULL;
+    ALTER TABLE shops 
+    DROP CONSTRAINT IF EXISTS shops_osm_id_key;
+  `;
+  await sql`
+    ALTER TABLE shops 
+    ADD CONSTRAINT shops_osm_id_key UNIQUE (osm_id);
   `;
   await sql`
     CREATE INDEX IF NOT EXISTS shops_location_gist_idx ON shops USING GIST (location);

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "tsx src/scripts/migrate.ts",
+    "db:sync": "tsx src/scripts/sync-shops.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

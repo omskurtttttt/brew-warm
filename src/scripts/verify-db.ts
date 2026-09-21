@@ -62,9 +62,24 @@ async function verify() {
 
   console.log("4. PostGIS ST_DWithin & ST_Distance Result:", results[0]);
 
-  // Clean up
+  // Clean up test shop
   await sql`DELETE FROM shops WHERE osm_id = ${testOsmId};`;
-  console.log("5. Cleanup completed.");
+  console.log("5. Cleanup test record completed.");
+
+  // 6. Check Synced Shops
+  const [shopStats] = await sql`
+    SELECT count(*)::int as total_shops, count(osm_id)::int as osm_shops 
+    FROM shops;
+  `;
+  console.log("6. Synced Shops in Database:", shopStats);
+
+  const sampleShops = await sql`
+    SELECT name, lat, lng, address 
+    FROM shops 
+    WHERE osm_id IS NOT NULL 
+    LIMIT 3;
+  `;
+  console.log("   Sample Synced Shops:", sampleShops);
 
   console.log("=== All Database Verifications Succeeded! ===");
 }
