@@ -1,67 +1,98 @@
 import { NextRequest } from "next/server";
 import { db } from "@/db";
-import { shops } from "@/db/schema";
-import { and, gte, lte, sql } from "drizzle-orm";
+import { shops, reviews } from "@/db/schema";
+import { eq, sql, desc, asc } from "drizzle-orm";
 
 /**
- * GET /api/shops?lat=X&lng=Y&radius=Z
+ * GET /api/shops?near=lat,lng&radius=2000&sort=rating|distance
  *
- * Fetch nearby shops from the database using a bounding-box query.
- * Radius is in kilometers (default 2km).
+ * Spatially query coffee shops from the PostGIS database.
+ * Uses PostGIS ST_DWithin and ST_Distance for geodetic distance calculations.
+ * Computes average rating and review count per shop.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
-  const rawLat = searchParams.get("lat");
-  const rawLng = searchParams.get("lng");
-  const rawRadius = searchParams.get("radius");
+  // Accept ?near=lat,lng or legacy ?lat=X&lng=Y
+  const nearParam = searchParams.get("near");
+  let lat: number;
+  let lng: number;
 
-  const lat = parseFloat(rawLat ?? "");
-  const lng = parseFloat(rawLng ?? "");
-  const unconstrainedRadius = parseFloat(rawRadius ?? "2");
+  if (nearParam) {
+    const parts = nearParam.split(",").map((p) => parseFloat(p.trim()));
+    lat = parts[0];
+    lng = parts[1];
+  } else {
+    lat = parseFloat(searchParams.get("lat") ?? "");
+    lng = parseFloat(searchParams.get("lng") ?? "");
+  }
 
   if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     return Response.json(
-      { error: "Valid lat (-90 to 90) and lng (-180 to 180) query parameters are required" },
+      { error: "Valid location coordinates required. Use ?near=lat,lng or ?lat=X&lng=Y" },
       { status: 400 }
     );
   }
 
-  // Clamp radius between 0.1km and 50km
-  const radius = Math.min(Math.max(isNaN(unconstrainedRadius) ? 2 : unconstrainedRadius, 0.1), 50);
+  // Parse radius in meters (default 2000m / 2km)
+  const rawRadius = parseFloat(searchParams.get("radius") ?? "2000");
+  let radiusMeters = isNaN(rawRadius) ? 2000 : rawRadius;
+  // If radius was passed as small number <= 50, assume kilometers and convert to meters
+  if (radiusMeters > 0 && radiusMeters <= 50) {
+    radiusMeters = radiusMeters * 1000;
+  }
+  // Clamp radius between 100m and 100,000m (100km)
+  radiusMeters = Math.min(Math.max(radiusMeters, 100), 100000);
 
-  // Approximate bounding box from radius in km
-  // 1 degree latitude ≈ 111km
-  // Safeguard against cos(lat) approaching 0 near poles
-  const cosLat = Math.max(Math.abs(Math.cos((lat * Math.PI) / 180)), 0.0001);
-  const latDelta = radius / 111;
-  const lngDelta = radius / (111 * cosLat);
+  const sort = searchParams.get("sort")?.toLowerCase() || "distance";
+  const limit = Math.min(Math.max(parseInt(searchParams.get("limit") ?? "100", 10) || 100, 1), 500);
 
   try {
-    const results = await db
-      .select()
-      .from(shops)
-      .where(
-        and(
-          gte(shops.lat, lat - latDelta),
-          lte(shops.lat, lat + latDelta),
-          gte(shops.lng, lng - lngDelta),
-          lte(shops.lng, lng + lngDelta)
-        )
-      )
-      .orderBy(
-        // Sort by approximate distance (Euclidean)
-        sql`(${shops.lat} - ${lat})*(${shops.lat} - ${lat}) + (${shops.lng} - ${lng})*(${shops.lng} - ${lng})`
-      )
-      .limit(100);
+    const userLocation = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
+    const distanceSql = sql<number>`ROUND(ST_Distance(${shops.location}, ${userLocation})::numeric, 1)`;
+    const avgRatingSql = sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`;
+    const reviewCountSql = sql<number>`COUNT(${reviews.id})::int`;
 
-    return Response.json({ shops: results });
+    const baseQuery = db
+      .select({
+        id: shops.id,
+        osmId: shops.osmId,
+        name: shops.name,
+        lat: shops.lat,
+        lng: shops.lng,
+        address: shops.address,
+        tags: shops.tags,
+        updatedAt: shops.updatedAt,
+        createdAt: shops.createdAt,
+        distanceMeters: distanceSql,
+        avgRating: avgRatingSql,
+        reviewCount: reviewCountSql,
+      })
+      .from(shops)
+      .leftJoin(reviews, eq(shops.id, reviews.shopId))
+      .where(sql`ST_DWithin(${shops.location}, ${userLocation}, ${radiusMeters})`)
+      .groupBy(shops.id);
+
+    const results = await (sort === "rating"
+      ? baseQuery.orderBy(desc(avgRatingSql), asc(distanceSql)).limit(limit)
+      : baseQuery.orderBy(asc(distanceSql)).limit(limit));
+
+    return Response.json({
+      total: results.length,
+      center: { lat, lng },
+      radiusMeters,
+      sort,
+      shops: results.map((s) => ({
+        ...s,
+        distance_meters: s.distanceMeters,
+        distance_km: s.distanceMeters != null ? Math.round((s.distanceMeters / 1000) * 10) / 10 : null,
+        avg_rating: s.avgRating,
+        review_count: s.reviewCount,
+      })),
+    });
   } catch (err) {
-    console.error("Failed to fetch shops:", err);
-    return Response.json(
-      { error: "Failed to fetch shops" },
-      { status: 500 }
-    );
+    console.error("Failed to perform spatial search for shops:", err);
+    return Response.json({ error: "Failed to fetch nearby shops" }, { status: 500 });
   }
 }
 

@@ -21,6 +21,9 @@ export interface CafeData {
     name?: string;
     [key: string]: string | undefined;
   };
+  avgRating?: number;
+  reviewCount?: number;
+  distanceMeters?: number;
 }
 
 export interface OverpassBounds {
@@ -30,71 +33,58 @@ export interface OverpassBounds {
   east: number;
 }
 
-
 /**
- * Fetch cafes via our server-side proxy route (/api/osm).
- * The server attaches an OSM-compliant User-Agent, handles multi-mirror fallback,
- * queries both OpenStreetMap and the local database, and caches results.
+ * Fetch cafes from our spatial PostGIS database (/api/shops).
+ * The database acts as the single source of truth for all reads.
  */
 export async function fetchCafes(bounds: OverpassBounds): Promise<CafeData[]> {
-  const url = `/api/osm?south=${bounds.south.toFixed(5)}&west=${bounds.west.toFixed(5)}&north=${bounds.north.toFixed(5)}&east=${bounds.east.toFixed(5)}`;
+  const centerLat = (bounds.south + bounds.north) / 2;
+  const centerLng = (bounds.west + bounds.east) / 2;
+
+  // Approximate radius in meters from the bounding box
+  const latDeltaKm = Math.abs(bounds.north - bounds.south) * 111;
+  const lngDeltaKm =
+    Math.abs(bounds.east - bounds.west) *
+    111 *
+    Math.cos((centerLat * Math.PI) / 180);
+  const radiusMeters = Math.round(
+    Math.min(Math.max((Math.max(latDeltaKm, lngDeltaKm) / 2) * 1000, 1000), 100000)
+  );
+
+  const url = `/api/shops?near=${centerLat.toFixed(5)},${centerLng.toFixed(5)}&radius=${radiusMeters}`;
 
   try {
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.cafes)) {
-        return data.cafes;
-      }
-    }
-  } catch {
-    // Network error on /api/osm: try direct /api/shops fallback
-  }
-
-  // Fallback to local community database directly
-  try {
-    const centerLat = (bounds.south + bounds.north) / 2;
-    const centerLng = (bounds.west + bounds.east) / 2;
-    const latDelta = Math.abs(bounds.north - bounds.south);
-    const radiusKm = Math.min(Math.max(latDelta * 55, 1), 30);
-
-    const localRes = await fetch(
-      `/api/shops?lat=${centerLat.toFixed(5)}&lng=${centerLng.toFixed(5)}&radius=${radiusKm.toFixed(1)}`
-    );
-    if (localRes.ok) {
-      const localData = await localRes.json();
-      if (Array.isArray(localData.shops)) {
-        return localData.shops.map((s: {
+      if (Array.isArray(data.shops)) {
+        return data.shops.map((s: {
           id: number;
           name: string;
           lat: number;
           lng: number;
           address?: string | null;
-          openingHours?: string | null;
-          cuisine?: string | null;
-          phone?: string | null;
-          website?: string | null;
-          internetAccess?: string | null;
-          outdoorSeating?: string | null;
+          tags?: Record<string, string | undefined> | null;
+          distance_meters?: number | null;
+          avg_rating?: number;
+          review_count?: number;
         }) => ({
           id: s.id,
           name: s.name,
           lat: s.lat,
           lng: s.lng,
           tags: {
-            opening_hours: s.openingHours || undefined,
-            cuisine: s.cuisine || undefined,
-            phone: s.phone || undefined,
-            website: s.website || undefined,
-            internet_access: s.internetAccess || undefined,
-            outdoor_seating: s.outdoorSeating || undefined,
-            address: s.address || undefined,
+            ...(s.tags || {}),
+            address: s.address || s.tags?.address || undefined,
           },
+          avgRating: s.avg_rating,
+          reviewCount: s.review_count,
+          distanceMeters: s.distance_meters ?? undefined,
         }));
       }
     }
-  } catch {
-    // Fail soft
+  } catch (err) {
+    console.error("Failed to fetch shops from spatial database:", err);
   }
 
   return [];

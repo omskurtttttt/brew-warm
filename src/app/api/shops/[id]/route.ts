@@ -1,12 +1,12 @@
 import type { NextRequest } from "next/server";
 import { db } from "@/db";
-import { shops } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { shops, reviews } from "@/db/schema";
+import { eq, sql } from "drizzle-orm";
 
 /**
  * GET /api/shops/[id]
  *
- * Fetch a single shop by ID.
+ * Fetch a single shop by ID including its computed average rating and review count.
  */
 export async function GET(
   _req: NextRequest,
@@ -20,17 +20,40 @@ export async function GET(
   }
 
   try {
+    const avgRatingSql = sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`;
+    const reviewCountSql = sql<number>`COUNT(${reviews.id})::int`;
+
     const [shop] = await db
-      .select()
+      .select({
+        id: shops.id,
+        osmId: shops.osmId,
+        name: shops.name,
+        lat: shops.lat,
+        lng: shops.lng,
+        address: shops.address,
+        tags: shops.tags,
+        updatedAt: shops.updatedAt,
+        createdAt: shops.createdAt,
+        avgRating: avgRatingSql,
+        reviewCount: reviewCountSql,
+      })
       .from(shops)
+      .leftJoin(reviews, eq(shops.id, reviews.shopId))
       .where(eq(shops.id, shopId))
+      .groupBy(shops.id)
       .limit(1);
 
     if (!shop) {
       return Response.json({ error: "Shop not found" }, { status: 404 });
     }
 
-    return Response.json({ shop });
+    return Response.json({
+      shop: {
+        ...shop,
+        avg_rating: shop.avgRating,
+        review_count: shop.reviewCount,
+      },
+    });
   } catch (err) {
     console.error("Failed to fetch shop:", err);
     return Response.json({ error: "Failed to fetch shop" }, { status: 500 });

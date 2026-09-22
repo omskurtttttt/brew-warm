@@ -43,6 +43,11 @@ async function runMigration() {
   await sql`
     CREATE INDEX IF NOT EXISTS shops_location_gist_idx ON shops USING GIST (location);
   `;
+  await sql`
+    UPDATE shops 
+    SET location = ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography 
+    WHERE location IS NULL AND lat IS NOT NULL AND lng IS NOT NULL;
+  `;
 
   // 3. Users table
   await sql`

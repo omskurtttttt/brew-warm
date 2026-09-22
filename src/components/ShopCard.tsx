@@ -78,6 +78,11 @@ export default function ShopCard({
 
       {/* Tags */}
       <div className="shop-card__tags">
+        {cafe.avgRating && cafe.avgRating > 0 ? (
+          <span className="pill" style={{ color: "var(--color-accent)", fontWeight: 600 }}>
+            ★ {cafe.avgRating.toFixed(1)}
+          </span>
+        ) : null}
         {cuisine && <span className="pill">{cuisine}</span>}
         {hasWifi && <span className="pill">wifi</span>}
         {hasOutdoor && <span className="pill">outdoor</span>}

@@ -168,14 +168,27 @@ export default function ShopDetail({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "0.5rem",
+            gap: "0.75rem",
             marginTop: "0.375rem",
+            flexWrap: "wrap",
           }}
         >
-          <span className={`status-dot ${hasHours ? "" : "status-dot--closed"}`} />
-          <span className="text-micro" style={{ letterSpacing: "0.06em" }}>
-            {hasHours ? "open now" : "hours unconfirmed"}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span className={`status-dot ${hasHours ? "" : "status-dot--closed"}`} />
+            <span className="text-micro" style={{ letterSpacing: "0.06em" }}>
+              {hasHours ? "open now" : "hours unconfirmed"}
+            </span>
+          </div>
+
+          {cafe.avgRating && cafe.avgRating > 0 ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "var(--color-accent)" }}>
+              <span style={{ fontSize: "0.85rem" }}>★</span>
+              <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>{cafe.avgRating.toFixed(1)}</span>
+              <span className="text-micro" style={{ color: "var(--color-text-secondary)" }}>
+                ({cafe.reviewCount ?? 0} {cafe.reviewCount === 1 ? "review" : "reviews"})
+              </span>
+            </div>
+          ) : null}
         </div>
       </div>
 
