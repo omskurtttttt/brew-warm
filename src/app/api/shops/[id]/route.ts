@@ -69,6 +69,20 @@ export async function PATCH(
   request: NextRequest,
   ctx: RouteContext<"/api/shops/[id]">
 ) {
+  const adminSecret = process.env.ADMIN_SECRET || process.env.CRON_SECRET;
+  const authHeader = request.headers.get("authorization");
+
+  if (adminSecret) {
+    if (authHeader !== `Bearer ${adminSecret}`) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } else if (process.env.NODE_ENV === "production") {
+    return Response.json(
+      { error: "Unauthorized: Shop modifications require authentication" },
+      { status: 401 }
+    );
+  }
+
   const { id } = await ctx.params;
   const shopId = parseInt(id, 10);
 

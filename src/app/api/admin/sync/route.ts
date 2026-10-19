@@ -26,6 +26,20 @@ export async function GET() {
  *   { "bounds": { "south": 13.1, "west": 123.7, "north": 13.2, "east": 123.8 }, "name": "Custom Area" }
  */
 export async function POST(request: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET || process.env.ADMIN_SECRET;
+  const authHeader = request.headers.get("authorization");
+
+  if (cronSecret) {
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } else if (process.env.NODE_ENV === "production") {
+    return Response.json(
+      { error: "Unauthorized: CRON_SECRET must be configured in production" },
+      { status: 401 }
+    );
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
