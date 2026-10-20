@@ -81,6 +81,33 @@ async function verify() {
   `;
   console.log("   Sample Synced Shops:", sampleShops);
 
+  // 7. Verify favorites unique constraint on (session_id, shop_id)
+  const constraints = await sql`
+    SELECT constraint_name 
+    FROM information_schema.table_constraints 
+    WHERE table_name = 'favorites' AND constraint_name = 'favorites_session_shop_unique';
+  `;
+  console.log("7. Favorites Unique Constraint:", constraints[0]?.constraint_name);
+
+  // Test duplicate prevention with conflict handling
+  const testSession = "test_verify_" + Date.now();
+  const [firstShop] = await sql`SELECT id FROM shops LIMIT 1;`;
+  if (firstShop) {
+    await sql`
+      INSERT INTO favorites (shop_id, session_id) 
+      VALUES (${firstShop.id}, ${testSession})
+      ON CONFLICT (session_id, shop_id) DO NOTHING;
+    `;
+    const dupeInsert = await sql`
+      INSERT INTO favorites (shop_id, session_id) 
+      VALUES (${firstShop.id}, ${testSession})
+      ON CONFLICT (session_id, shop_id) DO NOTHING
+      RETURNING id;
+    `;
+    console.log("   Duplicate insert correctly rejected (returned 0 rows):", dupeInsert.length === 0);
+    await sql`DELETE FROM favorites WHERE session_id = ${testSession};`;
+  }
+
   console.log("=== All Database Verifications Succeeded! ===");
 }
 

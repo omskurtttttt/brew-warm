@@ -7,6 +7,7 @@ import {
   integer,
   jsonb,
   customType,
+  unique,
 } from "drizzle-orm/pg-core";
 
 
@@ -55,15 +56,21 @@ export const users = pgTable("users", {
    3. Favorites Join Table
    Supports authenticated user_id and transitional session_id
    ============================================================ */
-export const favorites = pgTable("favorites", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
-  shopId: integer("shop_id")
-    .notNull()
-    .references(() => shops.id, { onDelete: "cascade" }),
-  sessionId: text("session_id"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const favorites = pgTable(
+  "favorites",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+    shopId: integer("shop_id")
+      .notNull()
+      .references(() => shops.id, { onDelete: "cascade" }),
+    sessionId: text("session_id"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("favorites_session_shop_unique").on(table.sessionId, table.shopId),
+  ]
+);
 
 
 /* ============================================================

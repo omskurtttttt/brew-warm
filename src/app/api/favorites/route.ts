@@ -89,7 +89,22 @@ export async function POST(request: NextRequest) {
     const [inserted] = await db
       .insert(favorites)
       .values({ shopId, sessionId })
+      .onConflictDoNothing()
       .returning();
+
+    if (!inserted) {
+      const [conflictFavorite] = await db
+        .select()
+        .from(favorites)
+        .where(
+          and(
+            eq(favorites.shopId, shopId),
+            eq(favorites.sessionId, sessionId)
+          )
+        )
+        .limit(1);
+      return Response.json({ favorite: conflictFavorite }, { status: 200 });
+    }
 
     return Response.json({ favorite: inserted }, { status: 201 });
   } catch (err) {

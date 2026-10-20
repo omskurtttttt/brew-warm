@@ -61,9 +61,8 @@ async function runMigration() {
   `;
 
   // 4. Favorites table (with user_id, shop_id, optional session_id)
-  await sql`DROP TABLE IF EXISTS favorites CASCADE;`;
   await sql`
-    CREATE TABLE favorites (
+    CREATE TABLE IF NOT EXISTS favorites (
       id SERIAL PRIMARY KEY,
       user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
       shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
@@ -73,6 +72,24 @@ async function runMigration() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS favorites_user_id_idx ON favorites (user_id);`;
   await sql`CREATE INDEX IF NOT EXISTS favorites_session_id_idx ON favorites (session_id);`;
+
+  // Deduplicate any existing duplicates before adding unique constraint
+  await sql`
+    DELETE FROM favorites a USING favorites b
+    WHERE a.id > b.id
+      AND a.session_id IS NOT NULL
+      AND a.session_id = b.session_id
+      AND a.shop_id = b.shop_id;
+  `;
+
+  await sql`
+    ALTER TABLE favorites 
+    DROP CONSTRAINT IF EXISTS favorites_session_shop_unique;
+  `;
+  await sql`
+    ALTER TABLE favorites 
+    ADD CONSTRAINT favorites_session_shop_unique UNIQUE (session_id, shop_id);
+  `;
 
   // 5. Reviews table
   await sql`

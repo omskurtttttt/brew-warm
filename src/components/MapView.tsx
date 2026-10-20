@@ -238,6 +238,7 @@ function MapViewContent() {
     lat: number;
     lng: number;
     address?: string | null;
+    tags?: Record<string, string | undefined> | null;
     openingHours?: string | null;
     cuisine?: string | null;
     phone?: string | null;
@@ -245,18 +246,20 @@ function MapViewContent() {
     internetAccess?: string | null;
     outdoorSeating?: string | null;
   }) {
+    const shopTags = newShop.tags || {};
     const cafeData: CafeData = {
       id: newShop.id,
       name: newShop.name,
       lat: newShop.lat,
       lng: newShop.lng,
       tags: {
-        opening_hours: newShop.openingHours || undefined,
-        cuisine: newShop.cuisine || undefined,
-        phone: newShop.phone || undefined,
-        website: newShop.website || undefined,
-        internet_access: newShop.internetAccess || undefined,
-        outdoor_seating: newShop.outdoorSeating || undefined,
+        ...shopTags,
+        opening_hours: shopTags.opening_hours || newShop.openingHours || undefined,
+        cuisine: shopTags.cuisine || newShop.cuisine || undefined,
+        phone: shopTags.phone || newShop.phone || undefined,
+        website: shopTags.website || newShop.website || undefined,
+        internet_access: shopTags.internet_access || newShop.internetAccess || undefined,
+        outdoor_seating: shopTags.outdoor_seating || newShop.outdoorSeating || undefined,
       },
     };
 

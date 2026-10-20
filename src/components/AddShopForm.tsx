@@ -12,13 +12,14 @@ interface AddShopFormProps {
     lat: number;
     lng: number;
     address?: string | null;
+    tags?: Record<string, string | undefined> | null;
     openingHours?: string | null;
     cuisine?: string | null;
     phone?: string | null;
     website?: string | null;
     internetAccess?: string | null;
     outdoorSeating?: string | null;
-    source: string;
+    source?: string;
   }) => void;
 }
 

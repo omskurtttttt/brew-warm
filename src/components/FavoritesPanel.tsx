@@ -15,13 +15,14 @@ interface FavoriteItem {
     lat: number;
     lng: number;
     address?: string | null;
+    tags?: Record<string, string | undefined> | null;
     openingHours?: string | null;
     cuisine?: string | null;
     phone?: string | null;
     website?: string | null;
     internetAccess?: string | null;
     outdoorSeating?: string | null;
-  };
+  } | null;
 }
 
 interface FavoritesPanelProps {
@@ -132,36 +133,40 @@ export default function FavoritesPanel({
       ) : (
 
         <div className="cafe-list">
-          {favorites.map((fav, i) => {
-            const cafeData: CafeData = {
-              id: fav.shop.id,
-              name: fav.shop.name,
-              lat: fav.shop.lat,
-              lng: fav.shop.lng,
-              tags: {
-                opening_hours: fav.shop.openingHours || undefined,
-                cuisine: fav.shop.cuisine || undefined,
-                phone: fav.shop.phone || undefined,
-                website: fav.shop.website || undefined,
-                internet_access: fav.shop.internetAccess || undefined,
-                outdoor_seating: fav.shop.outdoorSeating || undefined,
-              },
-            };
+          {favorites
+            .filter((fav): fav is FavoriteItem & { shop: NonNullable<FavoriteItem["shop"]> } => Boolean(fav.shop))
+            .map((fav, i) => {
+              const shopTags = fav.shop.tags || {};
+              const cafeData: CafeData = {
+                id: fav.shop.id,
+                name: fav.shop.name,
+                lat: fav.shop.lat,
+                lng: fav.shop.lng,
+                tags: {
+                  ...shopTags,
+                  opening_hours: shopTags.opening_hours || fav.shop.openingHours || undefined,
+                  cuisine: shopTags.cuisine || fav.shop.cuisine || undefined,
+                  phone: shopTags.phone || fav.shop.phone || undefined,
+                  website: shopTags.website || fav.shop.website || undefined,
+                  internet_access: shopTags.internet_access || fav.shop.internetAccess || undefined,
+                  outdoor_seating: shopTags.outdoor_seating || fav.shop.outdoorSeating || undefined,
+                },
+              };
 
-            return (
-              <ShopCard
-                key={fav.id}
-                cafe={cafeData}
-                index={i}
-                isActive={false}
-                isHovered={hoveredCafeId === fav.shop.id}
-                onSelect={onSelectShop}
-                onHover={onHoverShop}
-                isFavorite={favoriteIds.has(fav.shop.id)}
-                onToggleFavorite={onToggleFavorite}
-              />
-            );
-          })}
+              return (
+                <ShopCard
+                  key={fav.id}
+                  cafe={cafeData}
+                  index={i}
+                  isActive={false}
+                  isHovered={hoveredCafeId === fav.shop.id}
+                  onSelect={onSelectShop}
+                  onHover={onHoverShop}
+                  isFavorite={favoriteIds.has(fav.shop.id)}
+                  onToggleFavorite={onToggleFavorite}
+                />
+              );
+            })}
         </div>
       )}
     </div>
