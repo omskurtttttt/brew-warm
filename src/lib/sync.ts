@@ -29,9 +29,10 @@ export const PREDEFINED_AREAS: Record<string, { name: string; bounds: SyncBounds
 };
 
 const OVERPASS_SERVERS = [
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
   "https://overpass-api.de/api/interpreter",
   "https://lz4.overpass-api.de/api/interpreter",
-  "https://z.overpass-api.de/api/interpreter",
 ];
 
 interface OverpassElement {
@@ -62,7 +63,7 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
 
   for (const endpoint of OVERPASS_SERVERS) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
     try {
       const response = await fetch(endpoint, {
@@ -70,7 +71,6 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
         headers: {
           "User-Agent": "BrewWarmApp/1.0 (https://brew-warm.vercel.app; lumibaokurtnivlha@gmail.com)",
           "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "application/json, */*",
         },
         body: `data=${encodeURIComponent(query)}`,
         signal: controller.signal,
@@ -84,10 +84,13 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
           elements = data.elements;
           break;
         }
+      } else {
+        lastError = new Error(`${endpoint} returned HTTP ${response.status} ${response.statusText}`);
       }
     } catch (err) {
       clearTimeout(timeoutId);
-      lastError = err instanceof Error ? err : new Error("Failed to query Overpass server");
+      console.error(`Mirror failed (${endpoint}):`, err);
+      lastError = err instanceof Error ? err : new Error(`Failed to query ${endpoint}`);
     }
   }
 
@@ -101,7 +104,20 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
     };
   }
 
-  let upsertedCount = 0;
+  // Deduplicate fetched elements by OSM ID before batching
+  const uniqueRecordsMap = new Map<
+    string,
+    {
+      osmId: string;
+      name: string;
+      lat: number;
+      lng: number;
+      location: ReturnType<typeof sql>;
+      address: string | null;
+      tags: Record<string, string>;
+      updatedAt: Date;
+    }
+  >();
 
   for (const el of elements) {
     const lat = el.lat ?? el.center?.lat;
@@ -119,19 +135,28 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
     ].filter(Boolean);
     const address = addressParts.length > 0 ? addressParts.join(", ") : el.tags?.["addr:full"] || null;
 
+    uniqueRecordsMap.set(osmId, {
+      osmId,
+      name,
+      lat,
+      lng,
+      location: sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`,
+      address,
+      tags: el.tags || {},
+      updatedAt: new Date(),
+    });
+  }
+
+  const records = Array.from(uniqueRecordsMap.values());
+  const BATCH_SIZE = 50;
+  let upsertedCount = 0;
+
+  for (let i = 0; i < records.length; i += BATCH_SIZE) {
+    const chunk = records.slice(i, i + BATCH_SIZE);
     try {
       await db
         .insert(shops)
-        .values({
-          osmId,
-          name,
-          lat,
-          lng,
-          location: sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`,
-          address,
-          tags: el.tags || {},
-          updatedAt: new Date(),
-        })
+        .values(chunk)
         .onConflictDoUpdate({
           target: shops.osmId,
           set: {
@@ -145,9 +170,9 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
           },
         });
 
-      upsertedCount++;
+      upsertedCount += chunk.length;
     } catch (err) {
-      console.error(`Failed to upsert shop ${osmId} (${name}):`, err);
+      console.error(`Failed to batch-upsert chunk of ${chunk.length} shops:`, err);
     }
   }
 

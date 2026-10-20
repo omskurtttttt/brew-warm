@@ -14,12 +14,18 @@ async function main() {
       console.log(`\nSyncing ${val.name} (${key})...`);
       const res = await syncAreaCafes(val.bounds, val.name);
       console.log(`-> Fetched: ${res.totalFetched}, Upserted into Database: ${res.upsertedCount}`);
+      if (!res.success && res.error) {
+        console.error(`-> Sync failed: ${res.error}`);
+      }
     }
   } else if (targetArea in PREDEFINED_AREAS) {
     const area = PREDEFINED_AREAS[targetArea];
     console.log(`\nSyncing ${area.name}...`);
     const res = await syncAreaCafes(area.bounds, area.name);
     console.log(`-> Fetched: ${res.totalFetched}, Upserted into Database: ${res.upsertedCount}`);
+    if (!res.success && res.error) {
+      console.error(`-> Sync failed: ${res.error}`);
+    }
   } else {
     console.error(`Unknown area: "${targetArea}". Available: ${Object.keys(PREDEFINED_AREAS).join(", ")}, all`);
     process.exit(1);
