@@ -15,7 +15,7 @@ const fraunces = Fraunces({
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
@@ -73,6 +73,10 @@ export default function RootLayout({
       className={`${inter.variable} ${fraunces.variable} ${ibmPlexMono.variable} ${caveat.variable}`}
     >
       <head>
+        {/* Preconnect to OpenStreetMap tile server to accelerate initial map rendering */}
+        <link rel="preconnect" href="https://tile.openstreetmap.org" />
+        <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+
         {/* Prevent FOUC on theme — inline script reads preference before paint */}
         <script
           dangerouslySetInnerHTML={{
