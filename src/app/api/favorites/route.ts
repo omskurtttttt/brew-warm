@@ -28,10 +28,9 @@ export async function GET(request: NextRequest) {
         shop: shops,
       })
       .from(favorites)
-      .leftJoin(shops, eq(favorites.shopId, shops.id))
+      .innerJoin(shops, eq(favorites.shopId, shops.id))
       .where(eq(favorites.sessionId, sessionId))
       .orderBy(favorites.createdAt);
-
 
     return Response.json({ favorites: results });
   } catch (err) {
@@ -70,7 +69,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Check if already favorited
+    const [inserted] = await db
+      .insert(favorites)
+      .values({ shopId, sessionId })
+      .onConflictDoNothing()
+      .returning();
+
+    if (inserted) {
+      return Response.json({ favorite: inserted }, { status: 201 });
+    }
+
     const [existing] = await db
       .select()
       .from(favorites)
@@ -82,31 +90,7 @@ export async function POST(request: NextRequest) {
       )
       .limit(1);
 
-    if (existing) {
-      return Response.json({ favorite: existing }, { status: 200 });
-    }
-
-    const [inserted] = await db
-      .insert(favorites)
-      .values({ shopId, sessionId })
-      .onConflictDoNothing()
-      .returning();
-
-    if (!inserted) {
-      const [conflictFavorite] = await db
-        .select()
-        .from(favorites)
-        .where(
-          and(
-            eq(favorites.shopId, shopId),
-            eq(favorites.sessionId, sessionId)
-          )
-        )
-        .limit(1);
-      return Response.json({ favorite: conflictFavorite }, { status: 200 });
-    }
-
-    return Response.json({ favorite: inserted }, { status: 201 });
+    return Response.json({ favorite: existing }, { status: 200 });
   } catch (err) {
     console.error("Failed to add favorite:", err);
     return Response.json(
@@ -117,31 +101,30 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * DELETE /api/favorites?id=X&sessionId=Y
+ * DELETE /api/favorites?id=X&sessionId=Y or ?shopId=X&sessionId=Y
  *
- * Remove a favorite by ID (with session ownership check).
+ * Remove a favorite by ID or shopId (with session ownership check).
  */
 export async function DELETE(request: NextRequest) {
-  const id = parseInt(
-    request.nextUrl.searchParams.get("id") ?? "",
-    10
-  );
+  const id = parseInt(request.nextUrl.searchParams.get("id") ?? "", 10);
+  const shopId = parseInt(request.nextUrl.searchParams.get("shopId") ?? "", 10);
   const sessionId = request.nextUrl.searchParams.get("sessionId");
 
-  if (isNaN(id) || !sessionId || sessionId.length > 100) {
+  if ((isNaN(id) && isNaN(shopId)) || !sessionId || sessionId.length > 100) {
     return Response.json(
-      { error: "Valid id and sessionId query parameters are required" },
+      { error: "Valid id or shopId, and sessionId query parameters are required" },
       { status: 400 }
     );
   }
 
-
   try {
+    const deleteCondition = !isNaN(shopId)
+      ? and(eq(favorites.shopId, shopId), eq(favorites.sessionId, sessionId))
+      : and(eq(favorites.id, id), eq(favorites.sessionId, sessionId));
+
     const [deleted] = await db
       .delete(favorites)
-      .where(
-        and(eq(favorites.id, id), eq(favorites.sessionId, sessionId))
-      )
+      .where(deleteCondition)
       .returning();
 
     if (!deleted) {

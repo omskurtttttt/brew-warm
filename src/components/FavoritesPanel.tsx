@@ -16,12 +16,6 @@ interface FavoriteItem {
     lng: number;
     address?: string | null;
     tags?: Record<string, string | undefined> | null;
-    openingHours?: string | null;
-    cuisine?: string | null;
-    phone?: string | null;
-    website?: string | null;
-    internetAccess?: string | null;
-    outdoorSeating?: string | null;
   } | null;
 }
 
@@ -136,21 +130,12 @@ export default function FavoritesPanel({
           {favorites
             .filter((fav): fav is FavoriteItem & { shop: NonNullable<FavoriteItem["shop"]> } => Boolean(fav.shop))
             .map((fav, i) => {
-              const shopTags = fav.shop.tags || {};
               const cafeData: CafeData = {
                 id: fav.shop.id,
                 name: fav.shop.name,
                 lat: fav.shop.lat,
                 lng: fav.shop.lng,
-                tags: {
-                  ...shopTags,
-                  opening_hours: shopTags.opening_hours || fav.shop.openingHours || undefined,
-                  cuisine: shopTags.cuisine || fav.shop.cuisine || undefined,
-                  phone: shopTags.phone || fav.shop.phone || undefined,
-                  website: shopTags.website || fav.shop.website || undefined,
-                  internet_access: shopTags.internet_access || fav.shop.internetAccess || undefined,
-                  outdoor_seating: shopTags.outdoor_seating || fav.shop.outdoorSeating || undefined,
-                },
+                tags: (fav.shop.tags || {}) as CafeData["tags"],
               };
 
               return (

@@ -198,15 +198,10 @@ function MapViewContent() {
 
     try {
       if (isFav) {
-        // Find favorite entry ID to delete
-        const res = await fetch(`/api/favorites?sessionId=${encodeURIComponent(sessionId)}`);
-        const data = await res.json();
-        const entry = data.favorites?.find((f: { shopId: number }) => f.shopId === Number(cafeId));
-        if (entry) {
-          await fetch(`/api/favorites?id=${entry.id}&sessionId=${encodeURIComponent(sessionId)}`, {
-            method: "DELETE",
-          });
-        }
+        await fetch(
+          `/api/favorites?shopId=${cafeId}&sessionId=${encodeURIComponent(sessionId)}`,
+          { method: "DELETE" }
+        );
       } else {
         await fetch("/api/favorites", {
           method: "POST",

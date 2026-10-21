@@ -97,42 +97,42 @@ export async function PATCH(
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const maxLengths: Record<string, number> = {
-
-    name: 150,
-    address: 300,
-    openingHours: 200,
-    cuisine: 100,
-    phone: 50,
-    website: 300,
-    internetAccess: 20,
-    outdoorSeating: 20,
-  };
-
-  const directFields = ["name", "address"] as const;
-  const tagFields = ["openingHours", "cuisine", "phone", "website", "internetAccess", "outdoorSeating"] as const;
-
   const directUpdates: Record<string, string | null> = {};
-  const tagUpdates: Record<string, string | undefined> = {};
-
-  for (const field of directFields) {
-    if (field in body) {
-      const value = body[field];
-      directUpdates[field] = typeof value === "string" && value.trim().length > 0 
-        ? value.trim().slice(0, maxLengths[field] ?? 200) 
-        : null;
+  if ("name" in body) {
+    if (typeof body.name !== "string" || body.name.trim().length === 0) {
+      return Response.json({ error: "name must be a non-empty string (max 150 chars)" }, { status: 400 });
     }
+    directUpdates.name = body.name.trim().slice(0, 150);
+  }
+  if ("address" in body) {
+    directUpdates.address = typeof body.address === "string" && body.address.trim().length > 0
+      ? body.address.trim().slice(0, 300)
+      : null;
   }
 
-  for (const field of tagFields) {
-    if (field in body) {
-      const value = body[field];
+  const tagFieldMapping: Record<string, { tagKey: string; maxLen: number }> = {
+    openingHours: { tagKey: "opening_hours", maxLen: 200 },
+    opening_hours: { tagKey: "opening_hours", maxLen: 200 },
+    cuisine: { tagKey: "cuisine", maxLen: 100 },
+    phone: { tagKey: "phone", maxLen: 50 },
+    website: { tagKey: "website", maxLen: 300 },
+    internetAccess: { tagKey: "internet_access", maxLen: 20 },
+    internet_access: { tagKey: "internet_access", maxLen: 20 },
+    outdoorSeating: { tagKey: "outdoor_seating", maxLen: 20 },
+    outdoor_seating: { tagKey: "outdoor_seating", maxLen: 20 },
+  };
+
+  const tagUpdates: Record<string, string | undefined> = {};
+
+  for (const [key, { tagKey, maxLen }] of Object.entries(tagFieldMapping)) {
+    if (key in body) {
+      const value = body[key];
       if (typeof value === "string" && value.trim().length > 0) {
         const trimmed = value.trim();
-        if (field === "website" && !trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+        if (tagKey === "website" && !trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
           return Response.json({ error: "website must begin with http:// or https://" }, { status: 400 });
         }
-        tagUpdates[field] = trimmed.slice(0, maxLengths[field] ?? 200);
+        tagUpdates[tagKey] = trimmed.slice(0, maxLen);
       }
     }
   }
