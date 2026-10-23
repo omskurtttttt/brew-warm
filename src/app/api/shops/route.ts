@@ -77,19 +77,26 @@ export async function GET(request: NextRequest) {
       ? baseQuery.orderBy(desc(avgRatingSql), asc(distanceSql)).limit(limit)
       : baseQuery.orderBy(asc(distanceSql)).limit(limit));
 
-    return Response.json({
-      total: results.length,
-      center: { lat, lng },
-      radiusMeters,
-      sort,
-      shops: results.map((s) => ({
-        ...s,
-        distance_meters: s.distanceMeters,
-        distance_km: s.distanceMeters != null ? Math.round((s.distanceMeters / 1000) * 10) / 10 : null,
-        avg_rating: s.avgRating,
-        review_count: s.reviewCount,
-      })),
-    });
+    return Response.json(
+      {
+        total: results.length,
+        center: { lat, lng },
+        radiusMeters,
+        sort,
+        shops: results.map((s) => ({
+          ...s,
+          distance_meters: s.distanceMeters,
+          distance_km: s.distanceMeters != null ? Math.round((s.distanceMeters / 1000) * 10) / 10 : null,
+          avg_rating: s.avgRating,
+          review_count: s.reviewCount,
+        })),
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (err) {
     console.error("Failed to perform spatial search for shops:", err);
     return Response.json({ error: "Failed to fetch nearby shops" }, { status: 500 });

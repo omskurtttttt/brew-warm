@@ -47,13 +47,20 @@ export async function GET(
       return Response.json({ error: "Shop not found" }, { status: 404 });
     }
 
-    return Response.json({
-      shop: {
-        ...shop,
-        avg_rating: shop.avgRating,
-        review_count: shop.reviewCount,
+    return Response.json(
+      {
+        shop: {
+          ...shop,
+          avg_rating: shop.avgRating,
+          review_count: shop.reviewCount,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (err) {
     console.error("Failed to fetch shop:", err);
     return Response.json({ error: "Failed to fetch shop" }, { status: 500 });

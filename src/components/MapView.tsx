@@ -4,18 +4,28 @@ import dynamic from "next/dynamic";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import type { CafeData } from "@/lib/overpass";
 import ShopCard from "@/components/ShopCard";
-import ShopDetail from "@/components/ShopDetail";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
-import AddShopForm from "@/components/AddShopForm";
 import FavoritesPanel from "@/components/FavoritesPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import CoffeeStain from "@/components/CoffeeStain";
 import AmbientPlayer from "@/components/AmbientPlayer";
-import OnboardingModal from "@/components/OnboardingModal";
 import { SparklesIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 import { ToastProvider, useToast } from "@/components/Toast";
+
+/* Dynamic imports for code splitting heavy / conditional modals */
+const ShopDetail = dynamic(() => import("@/components/ShopDetail"), {
+  ssr: false,
+});
+
+const AddShopForm = dynamic(() => import("@/components/AddShopForm"), {
+  ssr: false,
+});
+
+const OnboardingModal = dynamic(() => import("@/components/OnboardingModal"), {
+  ssr: false,
+});
 
 /* Dynamic import — Leaflet requires browser APIs */
 const Map = dynamic(() => import("@/components/Map"), {
