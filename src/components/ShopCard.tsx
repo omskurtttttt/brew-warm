@@ -65,7 +65,12 @@ export default function ShopCard({
               <HeartIcon size={16} filled={isFavorite} color={isFavorite ? "var(--color-accent)" : "var(--color-text-secondary)"} />
             </button>
           )}
-          <span className={`status-dot ${hasHours ? "" : "status-dot--closed"}`} />
+          <span
+            className={`status-dot ${hasHours ? "" : "status-dot--closed"}`}
+            role="status"
+            aria-label={hasHours ? "Hours listed" : "Hours not listed"}
+            title={hasHours ? "Hours listed" : "Hours not listed"}
+          />
         </div>
       </div>
 

@@ -94,7 +94,7 @@ export default function FavoritesPanel({
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>☕🤍</div>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Coffee cup and heart">☕🤍</div>
           <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
             no favorites saved yet
           </p>
@@ -120,7 +120,8 @@ export default function FavoritesPanel({
                 fontWeight: 600,
               }}
             >
-              <span>🧭 explore nearby cafés</span>
+              <span role="img" aria-label="Compass">🧭</span>
+              <span>explore nearby cafés</span>
             </button>
           )}
         </div>

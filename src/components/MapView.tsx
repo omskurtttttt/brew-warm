@@ -307,7 +307,7 @@ function MapViewContent() {
               {/* 1. App Brand & Utility Toolbar */}
               <div className="sidebar-brand-row">
                 <div className="sidebar-brand">
-                  <div className="sidebar-brand__logo">☕</div>
+                  <div className="sidebar-brand__logo" role="img" aria-label="Brew Warm coffee logo">☕</div>
                   <div className="sidebar-brand__text">
                     <span className="sidebar-brand__name">brew warm</span>
                     <span className="sidebar-brand__tagline">café radar</span>
@@ -462,7 +462,7 @@ function MapViewContent() {
                                 className="pill"
                                 style={{ cursor: "pointer", fontSize: "0.68rem" }}
                               >
-                                🌋 Legazpi
+                                <span role="img" aria-label="Volcano">🌋</span> Legazpi
                               </button>
                               <button
                                 type="button"
@@ -470,7 +470,7 @@ function MapViewContent() {
                                 className="pill"
                                 style={{ cursor: "pointer", fontSize: "0.68rem" }}
                               >
-                                🏙️ BGC
+                                <span role="img" aria-label="City skyline">🏙️</span> BGC
                               </button>
                               <button
                                 type="button"
@@ -478,7 +478,7 @@ function MapViewContent() {
                                 className="pill"
                                 style={{ cursor: "pointer", fontSize: "0.68rem" }}
                               >
-                                ☕ Makati
+                                <span role="img" aria-label="Coffee cup">☕</span> Makati
                               </button>
                               <button
                                 type="button"
@@ -486,7 +486,7 @@ function MapViewContent() {
                                 className="pill"
                                 style={{ cursor: "pointer", fontSize: "0.68rem" }}
                               >
-                                🌴 Cebu
+                                <span role="img" aria-label="Palm tree">🌴</span> Cebu
                               </button>
                             </div>
                             <button
