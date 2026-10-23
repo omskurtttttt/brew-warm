@@ -282,7 +282,12 @@ textarea:focus-visible,
     scroll-behavior: auto !important;
   }
 
-  .entrance-stagger,
+  .entrance-stagger {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .map-skeleton__pulse,
   .coffee-stain {
     animation: none !important;

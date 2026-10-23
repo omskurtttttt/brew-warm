@@ -14,11 +14,9 @@ import { SparklesIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 import { ToastProvider, useToast } from "@/components/Toast";
 
-/* Dynamic imports for code splitting heavy / conditional modals */
-const ShopDetail = dynamic(() => import("@/components/ShopDetail"), {
-  ssr: false,
-});
+import ShopDetail from "@/components/ShopDetail";
 
+/* Dynamic imports for code splitting heavy / conditional modals */
 const AddShopForm = dynamic(() => import("@/components/AddShopForm"), {
   ssr: false,
 });
