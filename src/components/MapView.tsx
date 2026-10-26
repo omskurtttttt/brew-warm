@@ -10,7 +10,7 @@ import FavoritesPanel from "@/components/FavoritesPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import CoffeeStain from "@/components/CoffeeStain";
 import AmbientPlayer from "@/components/AmbientPlayer";
-import { SparklesIcon } from "@/components/Icons";
+import { SparklesIcon, CoffeeIcon, CompassIcon, MapPinIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 import { ToastProvider, useToast } from "@/components/Toast";
 
@@ -305,7 +305,9 @@ function MapViewContent() {
               {/* 1. App Brand & Utility Toolbar */}
               <div className="sidebar-brand-row">
                 <div className="sidebar-brand">
-                  <div className="sidebar-brand__logo" role="img" aria-label="Brew Warm coffee logo">☕</div>
+                  <div className="sidebar-brand__logo" aria-hidden="true">
+                    <CoffeeIcon size={18} color="var(--color-accent)" />
+                  </div>
                   <div className="sidebar-brand__text">
                     <span className="sidebar-brand__name">brew warm</span>
                     <span className="sidebar-brand__tagline">café radar</span>
@@ -446,7 +448,10 @@ function MapViewContent() {
                           </>
                         ) : (
                           <>
-                            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🗺️☕</div>
+                            <div className="empty-state__icon-cluster" aria-hidden="true" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px", marginBottom: "0.75rem" }}>
+                              <CompassIcon size={24} color="var(--color-accent)" />
+                              <CoffeeIcon size={22} color="var(--color-text-tertiary)" />
+                            </div>
                             <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
                               quiet corner of the map
                             </p>
@@ -457,34 +462,34 @@ function MapViewContent() {
                               <button
                                 type="button"
                                 onClick={() => handleSearchSelect(13.1391, 123.7438)}
-                                className="pill"
-                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                               >
-                                <span role="img" aria-label="Volcano">🌋</span> Legazpi
+                                <MapPinIcon size={11} color="var(--color-accent)" /> Legazpi
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleSearchSelect(14.5547, 121.0494)}
-                                className="pill"
-                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                               >
-                                <span role="img" aria-label="City skyline">🏙️</span> BGC
+                                <MapPinIcon size={11} color="var(--color-accent)" /> BGC
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleSearchSelect(14.5547, 121.0244)}
-                                className="pill"
-                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                               >
-                                <span role="img" aria-label="Coffee cup">☕</span> Makati
+                                <MapPinIcon size={11} color="var(--color-accent)" /> Makati
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleSearchSelect(10.3157, 123.8854)}
-                                className="pill"
-                                style={{ cursor: "pointer", fontSize: "0.68rem" }}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                               >
-                                <span role="img" aria-label="Palm tree">🌴</span> Cebu
+                                <MapPinIcon size={11} color="var(--color-accent)" /> Cebu
                               </button>
                             </div>
                             <button

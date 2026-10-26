@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import type { CafeData } from "@/lib/overpass";
 import ShopCard from "./ShopCard";
+import { CoffeeIcon, HeartIcon, CompassIcon } from "./Icons";
 
 interface FavoriteItem {
   id: number;
@@ -94,7 +95,10 @@ export default function FavoritesPanel({
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Coffee cup and heart">☕🤍</div>
+          <div className="empty-state__icon-cluster" aria-hidden="true" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginBottom: "0.75rem" }}>
+            <CoffeeIcon size={24} color="var(--color-text-secondary)" />
+            <HeartIcon size={22} filled={true} color="var(--color-accent)" />
+          </div>
           <p className="text-accent-script" style={{ fontSize: "1.25rem", marginBottom: "0.35rem" }}>
             no favorites saved yet
           </p>
@@ -120,7 +124,7 @@ export default function FavoritesPanel({
                 fontWeight: 600,
               }}
             >
-              <span role="img" aria-label="Compass">🧭</span>
+              <CompassIcon size={14} color="var(--color-accent)" />
               <span>explore nearby cafés</span>
             </button>
           )}
