@@ -96,7 +96,7 @@ export default function ShopDetail({
   // Share handler with deep link
   async function handleShare() {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://brew-warm.vercel.app";
-    const shareUrl = `${origin}/?lat=${cafe.lat.toFixed(5)}&lng=${cafe.lng.toFixed(5)}&shop=${encodeURIComponent(cafe.name)}`;
+    const shareUrl = `${origin}/map?lat=${cafe.lat.toFixed(5)}&lng=${cafe.lng.toFixed(5)}&shop=${encodeURIComponent(cafe.name)}`;
     const shareText = `Check out ${cafe.name} on Brew Warm ☕\n${shareUrl}`;
 
     if (navigator.share) {

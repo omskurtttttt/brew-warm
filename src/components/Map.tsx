@@ -36,20 +36,6 @@ function createCafeIcon() {
   });
 }
 
-function createActiveCafeIcon() {
-  return L.divIcon({
-    className: "cafe-marker cafe-marker--active",
-    html: `<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.268 21.732 0 14 0z" fill="var(--color-accent, #C1682F)"/>
-      <circle cx="14" cy="13" r="6.5" fill="#FFFFFF"/>
-      <text x="14" y="16.5" text-anchor="middle" font-size="10.5" font-weight="bold" fill="var(--color-accent, #C1682F)">☕</text>
-    </svg>`,
-    iconSize: [28, 38],
-    iconAnchor: [14, 38],
-    popupAnchor: [0, -38],
-  });
-}
-
 function createHoveredCafeIcon() {
   return L.divIcon({
     className: "cafe-marker cafe-marker--hovered",
@@ -61,6 +47,40 @@ function createHoveredCafeIcon() {
     iconSize: [28, 38],
     iconAnchor: [14, 38],
     popupAnchor: [0, -38],
+  });
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function createSpotlightCafeIcon(name: string) {
+  const safeName = escapeHtml(name || "Sanctuary Café");
+  return L.divIcon({
+    className: "cafe-marker cafe-marker--spotlight",
+    html: `
+      <div class="spotlight-pin-container">
+        <div class="spotlight-pulse"></div>
+        <div class="spotlight-badge">
+          <span class="spotlight-badge__star">★</span>
+          <span class="spotlight-badge__name">${safeName}</span>
+        </div>
+        <svg class="spotlight-pin-svg" width="34" height="46" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.268 21.732 0 14 0z" fill="#964215" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="14" cy="13" r="7.5" fill="#FFF8F0"/>
+          <circle cx="14" cy="13" r="6" fill="#D4A017"/>
+          <text x="14" y="16.5" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#2B1B12">☕</text>
+        </svg>
+      </div>
+    `,
+    iconSize: [34, 46],
+    iconAnchor: [17, 46],
+    popupAnchor: [0, -48],
   });
 }
 
@@ -134,7 +154,8 @@ interface FlyToTarget {
 interface MapProps {
   onCafesLoaded?: (cafes: CafeData[]) => void;
   onCafeSelect?: (cafe: CafeData) => void;
-  selectedCafeId?: number | null;
+  selectedCafe?: CafeData | null;
+  selectedCafeId?: number | string | null;
   hoveredCafeId?: number | string | null;
   flyTo?: FlyToTarget | null;
   isSidebarOpen?: boolean;
@@ -198,6 +219,7 @@ function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
 export default function Map({
   onCafesLoaded,
   onCafeSelect,
+  selectedCafe,
   selectedCafeId,
   hoveredCafeId,
   flyTo,
@@ -214,9 +236,43 @@ export default function Map({
 
   // Memoized marker icons
   const cafeIcon = useMemo(() => createCafeIcon(), []);
-  const activeCafeIcon = useMemo(() => createActiveCafeIcon(), []);
   const hoveredCafeIcon = useMemo(() => createHoveredCafeIcon(), []);
   const userIcon = useMemo(() => createUserIcon(), []);
+
+  // Helper to determine if a cafe matches the selected target
+  const isTargetCafe = useCallback(
+    (cafe: CafeData) => {
+      if (selectedCafe) {
+        if (cafe.id === selectedCafe.id) return true;
+        const targetName = selectedCafe.name.trim().toLowerCase();
+        const cafeName = cafe.name.trim().toLowerCase();
+        if (
+          targetName &&
+          (cafeName === targetName || cafeName.includes(targetName) || targetName.includes(cafeName))
+        ) {
+          const dLat = (cafe.lat - selectedCafe.lat) * 111320;
+          const dLng =
+            (cafe.lng - selectedCafe.lng) *
+            111320 *
+            Math.cos((selectedCafe.lat * Math.PI) / 180);
+          if (Math.hypot(dLat, dLng) < 600) return true;
+        }
+        if (
+          Math.abs(cafe.lat - selectedCafe.lat) < 0.00035 &&
+          Math.abs(cafe.lng - selectedCafe.lng) < 0.00035
+        ) {
+          return true;
+        }
+      }
+      return selectedCafeId != null && cafe.id === selectedCafeId;
+    },
+    [selectedCafe, selectedCafeId]
+  );
+
+  const isSelectedInCafes = useMemo(() => {
+    if (!selectedCafe) return true;
+    return cafes.some(isTargetCafe);
+  }, [cafes, selectedCafe, isTargetCafe]);
 
 
   // Debounce timer ref
@@ -358,10 +414,14 @@ export default function Map({
 
         {/* Cafe markers */}
         {cafes.map((cafe) => {
-          const isSelected = cafe.id === selectedCafeId;
+          const isSelected = isTargetCafe(cafe);
           const isHovered = cafe.id === hoveredCafeId;
-          const icon = isSelected ? activeCafeIcon : isHovered ? hoveredCafeIcon : cafeIcon;
-          const zOffset = isSelected ? 1000 : isHovered ? 900 : 0;
+          const icon = isSelected
+            ? createSpotlightCafeIcon(cafe.name)
+            : isHovered
+            ? hoveredCafeIcon
+            : cafeIcon;
+          const zOffset = isSelected ? 1500 : isHovered ? 900 : 0;
 
           return (
             <Marker
@@ -373,7 +433,6 @@ export default function Map({
                 click: () => onCafeSelect?.(cafe),
               }}
             >
-
               <Popup>
                 <div className="cafe-popup">
                   <strong
@@ -406,6 +465,38 @@ export default function Map({
           </Marker>
         );
       })}
+
+      {/* Dedicated Spotlight Marker if selected café is not yet in loaded cafes */}
+      {selectedCafe && !isSelectedInCafes && (
+        <Marker
+          key={`selected-spotlight-${selectedCafe.id}`}
+          position={[selectedCafe.lat, selectedCafe.lng]}
+          icon={createSpotlightCafeIcon(selectedCafe.name)}
+          zIndexOffset={1600}
+          eventHandlers={{
+            click: () => onCafeSelect?.(selectedCafe),
+          }}
+        >
+          <Popup>
+            <div className="cafe-popup">
+              <strong
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "14px",
+                }}
+              >
+                {selectedCafe.name}
+              </strong>
+              <p
+                className="text-micro"
+                style={{ marginTop: "4px", color: "var(--color-accent)", fontWeight: 600 }}
+              >
+                ★ Coffee Sanctuary
+              </p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
     </MapContainer>
 
 

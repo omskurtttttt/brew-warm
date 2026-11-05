@@ -157,6 +157,38 @@ function MapViewContent() {
     });
   }, [cafes, activeFilters]);
 
+  const handleCafesLoaded = useCallback((loadedCafes: CafeData[]) => {
+    setCafes(loadedCafes);
+
+    // Reconcile selectedCafe with real database/Overpass cafes if matched
+    setSelectedCafe((prev) => {
+      if (!prev) return null;
+      if (loadedCafes.some((c) => c.id === prev.id)) return prev;
+
+      const targetName = prev.name.trim().toLowerCase();
+      const match = loadedCafes.find((c) => {
+        const cName = c.name.trim().toLowerCase();
+        if (cName === targetName) return true;
+        if (cName.includes(targetName) || targetName.includes(cName)) return true;
+        const dLat = (c.lat - prev.lat) * 111320;
+        const dLng =
+          (c.lng - prev.lng) * 111320 * Math.cos((prev.lat * Math.PI) / 180);
+        return Math.hypot(dLat, dLng) < 90;
+      });
+
+      if (match) {
+        return {
+          ...match,
+          tags: {
+            ...prev.tags,
+            ...match.tags,
+          },
+        };
+      }
+      return prev;
+    });
+  }, []);
+
   const handleFilterToggle = useCallback((filter: string) => {
     setActiveFilters((prev) => {
       const next = new Set(prev);
@@ -608,8 +640,9 @@ function MapViewContent() {
         </button>
 
         <Map
-          onCafesLoaded={setCafes}
+          onCafesLoaded={handleCafesLoaded}
           onCafeSelect={handleCafeSelect}
+          selectedCafe={selectedCafe}
           selectedCafeId={selectedCafe?.id ?? null}
           hoveredCafeId={hoveredCafeId}
           flyTo={flyTo}
