@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import type { CafeData } from "@/lib/overpass";
@@ -54,7 +55,14 @@ function MapViewContent() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"nearby" | "saved">("nearby");
 
-  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const f = p.get("filter");
+      if (f) return new Set([f]);
+    }
+    return new Set();
+  });
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; key: number } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -304,15 +312,15 @@ function MapViewContent() {
             <div className="sidebar-header">
               {/* 1. App Brand & Utility Toolbar */}
               <div className="sidebar-brand-row">
-                <div className="sidebar-brand">
+                <Link href="/" className="sidebar-brand" title="Return to front page">
                   <div className="sidebar-brand__logo" aria-hidden="true">
                     <CoffeeIcon size={18} color="var(--color-accent)" />
                   </div>
                   <div className="sidebar-brand__text">
                     <span className="sidebar-brand__name">brew warm</span>
-                    <span className="sidebar-brand__tagline">café radar</span>
+                    <span className="sidebar-brand__tagline">← front page</span>
                   </div>
-                </div>
+                </Link>
 
                 <div className="sidebar-utility-actions">
                   <AmbientPlayer />
