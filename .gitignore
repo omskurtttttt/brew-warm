@@ -48,6 +48,7 @@ skills-lock.json
 .agents/
 CLAUDE.md
 GEMINI.md
+AGENTS.md
 
 
 # TypeScript
