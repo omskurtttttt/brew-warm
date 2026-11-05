@@ -26,13 +26,30 @@ export const PREDEFINED_AREAS: Record<string, { name: string; bounds: SyncBounds
     name: "Cebu City (IT Park / Lahug)",
     bounds: { south: 10.30, west: 123.88, north: 10.34, east: 123.93 },
   },
+  baguio: {
+    name: "Baguio City (Session Road / John Hay)",
+    bounds: { south: 16.39, west: 120.58, north: 16.43, east: 120.62 },
+  },
+  quezon_city: {
+    name: "Quezon City (Tomas Morato / Diliman)",
+    bounds: { south: 14.62, west: 121.02, north: 14.66, east: 121.06 },
+  },
+  tokyo: {
+    name: "Tokyo (Shibuya / Omotesando)",
+    bounds: { south: 35.65, west: 139.69, north: 35.68, east: 139.73 },
+  },
+  london: {
+    name: "London (Soho / Covent Garden)",
+    bounds: { south: 51.50, west: -0.15, north: 51.53, east: -0.11 },
+  },
 };
 
 const OVERPASS_SERVERS = [
-  "https://overpass.private.coffee/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
   "https://overpass-api.de/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
   "https://lz4.overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
 ];
 
 interface OverpassElement {
@@ -55,21 +72,27 @@ export interface SyncResult {
 /**
  * Fetch cafés from Overpass and upsert into the shops database table.
  */
-export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"): Promise<SyncResult> {
-  const query = `[out:json][timeout:25];(node(${bounds.south.toFixed(5)},${bounds.west.toFixed(5)},${bounds.north.toFixed(5)},${bounds.east.toFixed(5)})["amenity"="cafe"];way(${bounds.south.toFixed(5)},${bounds.west.toFixed(5)},${bounds.north.toFixed(5)},${bounds.east.toFixed(5)})["amenity"="cafe"];);out center;`;
+export async function syncAreaCafes(
+  bounds: SyncBounds,
+  areaName = "Custom Area",
+  timeoutMs = 60000
+): Promise<SyncResult> {
+  const overpassTimeoutSec = Math.max(Math.floor(timeoutMs / 1000) - 2, 5);
+  const query = `[out:json][timeout:${overpassTimeoutSec}];(node["amenity"="cafe"](${bounds.south.toFixed(5)},${bounds.west.toFixed(5)},${bounds.north.toFixed(5)},${bounds.east.toFixed(5)});way["amenity"="cafe"](${bounds.south.toFixed(5)},${bounds.west.toFixed(5)},${bounds.north.toFixed(5)},${bounds.east.toFixed(5)}););out center;`;
 
   let elements: OverpassElement[] = [];
   let lastError: Error | null = null;
 
   for (const endpoint of OVERPASS_SERVERS) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
-          "User-Agent": "BrewWarmApp/1.0 (https://brew-warm.vercel.app; lumibaokurtnivlha@gmail.com)",
+          "User-Agent": "BrewWarmApp/1.0",
+          "Accept": "*/*",
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: `data=${encodeURIComponent(query)}`,
@@ -85,7 +108,9 @@ export async function syncAreaCafes(bounds: SyncBounds, areaName = "Custom Area"
           break;
         }
       } else {
-        lastError = new Error(`${endpoint} returned HTTP ${response.status} ${response.statusText}`);
+        const errText = `${endpoint} returned HTTP ${response.status} ${response.statusText}`;
+        console.error(errText);
+        lastError = new Error(errText);
       }
     } catch (err) {
       clearTimeout(timeoutId);

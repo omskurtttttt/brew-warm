@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { shops, reviews } from "@/db/schema";
 import { eq, sql, desc, asc } from "drizzle-orm";
+import { syncAreaCafes } from "@/lib/sync";
 
 /**
  * GET /api/shops?near=lat,lng&radius=2000&sort=rating|distance
@@ -73,9 +74,38 @@ export async function GET(request: NextRequest) {
       .where(sql`ST_DWithin(${shops.location}, ${userLocation}, ${radiusMeters})`)
       .groupBy(shops.id);
 
-    const results = await (sort === "rating"
+    let results = await (sort === "rating"
       ? baseQuery.orderBy(desc(avgRatingSql), asc(distanceSql)).limit(limit)
       : baseQuery.orderBy(asc(distanceSql)).limit(limit));
+
+    // Option 1: On-Demand Read-Through Cache
+    // If no cafés exist in the PostGIS database for this area, auto-sync from Overpass
+    if (results.length === 0) {
+      try {
+        const effectiveRadius = Math.min(Math.max(radiusMeters, 1500), 4000);
+        const latDelta = effectiveRadius / 111320;
+        const lngDelta = effectiveRadius / (111320 * Math.cos((lat * Math.PI) / 180));
+        const syncBounds = {
+          south: lat - latDelta,
+          west: lng - lngDelta,
+          north: lat + latDelta,
+          east: lng + lngDelta,
+        };
+
+        const syncRes = await syncAreaCafes(
+          syncBounds,
+          `On-Demand (${lat.toFixed(3)}, ${lng.toFixed(3)})`,
+          8000
+        );
+        if (syncRes.upsertedCount > 0) {
+          results = await (sort === "rating"
+            ? baseQuery.orderBy(desc(avgRatingSql), asc(distanceSql)).limit(limit)
+            : baseQuery.orderBy(asc(distanceSql)).limit(limit));
+        }
+      } catch (syncErr) {
+        console.warn("On-demand cache sync skipped or timed out:", syncErr);
+      }
+    }
 
     return Response.json(
       {
