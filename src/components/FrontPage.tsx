@@ -75,48 +75,48 @@ const CURATED_VIBES = [
 
 const BARISTA_PICKS = [
   {
-    name: "Kissa Kokoro",
-    city: "Tokyo",
-    neighborhood: "Shibuya",
-    lat: 35.6595,
-    lng: 139.7005,
-    rating: "4.9",
-    vibe: "Vinyl Jazz & Siphon",
-    notes: "A subterranean jewel playing rare jazz records while pouring meticulous Ethiopian single-origins.",
-    tags: ["Pour-over", "Quiet", "Cash only"],
-  },
-  {
-    name: "Monmouth Coffee Company",
-    city: "London",
-    neighborhood: "Borough / Covent Garden",
-    lat: 51.5134,
-    lng: -0.1264,
-    rating: "4.8",
-    vibe: "Rustic Roaster Hub",
-    notes: "Pioneering UK specialty roastery with communal timber benches and fresh morning roasts.",
-    tags: ["Filter Drip", "Artisan Roaster", "Baked Goods"],
-  },
-  {
     name: "Yardstick Coffee",
     city: "Manila",
     neighborhood: "Legazpi Village, Makati",
     lat: 14.5568,
     lng: 121.0173,
     rating: "4.9",
-    vibe: "Minimalist Work Studio",
-    notes: "Bright, industrial-chic space famous for signature cold brews, workshop lab, and remote workers.",
-    tags: ["Fast Wi-Fi", "Espresso Bar", "Work friendly"],
+    vibe: "Pioneering Third Wave Studio",
+    notes: "Bright, industrial-chic space famous for calibrating single-origin beans, signature cold brews, and barista workshop lab.",
+    tags: ["Specialty Roaster", "Fast Wi-Fi", "Work friendly"],
   },
   {
-    name: "Devoción Coffee",
-    city: "New York",
-    neighborhood: "Williamsburg, Brooklyn",
-    lat: 40.716,
-    lng: -73.9634,
+    name: "The Good Cup",
+    city: "Cebu",
+    neighborhood: "F. Ramos St, Cogon Ramos",
+    lat: 10.3068,
+    lng: 123.8969,
+    rating: "4.9",
+    vibe: "World Brewers Cup Roastery",
+    notes: "Internationally renowned Cebuano specialty roastery offering meticulously sourced micro-lots and champion filter brews.",
+    tags: ["Competition Roaster", "Single Origin", "Filter Bar"],
+  },
+  {
+    name: "El Union Coffee",
+    city: "La Union",
+    neighborhood: "Urbiztondo, San Juan",
+    lat: 16.6596,
+    lng: 120.3224,
     rating: "4.8",
-    vibe: "Botanical Warehouse",
-    notes: "A sun-drenched atrium with a living plant wall, exposed brick, and 10-day farm-to-cup Colombian beans.",
-    tags: ["Skylit Atrium", "Direct Trade", "Leather Couches"],
+    vibe: "Coastal Surf & Slow Pour",
+    notes: "The quintessential beachside sanctuary celebrated for Cordillera beans, open-air ocean breeze, and post-surf pour-overs.",
+    tags: ["Beachfront", "Pour-over", "Outdoor Deck"],
+  },
+  {
+    name: "Hatch Coffee",
+    city: "Baguio",
+    neighborhood: "Easter Road, Guisad",
+    lat: 16.4233,
+    lng: 120.5871,
+    rating: "4.9",
+    vibe: "Secluded Pine Garden",
+    notes: "A hidden garden sanctuary tucked inside a historic Baguio compound serving exquisite Benguet cold brew flights and rustic bites.",
+    tags: ["Garden Sanctuary", "Benguet Arabica", "Cozy Nook"],
   },
 ];
 
@@ -375,7 +375,7 @@ export default function FrontPage() {
           <span className="front-section__eyebrow">✦ HANDPICKED SPACES</span>
           <h2 className="front-section__title">Coffee Sanctuaries</h2>
           <p className="front-section__subtitle">
-            A few beloved spaces around the world known for extraordinary cups and welcoming souls.
+            Beloved independent spaces across the Philippines celebrated for extraordinary cups, homegrown roasts, and welcoming souls.
           </p>
         </div>
 
