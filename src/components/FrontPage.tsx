@@ -26,12 +26,12 @@ interface NominatimResult {
 }
 
 const POPULAR_HUBS = [
-  { name: "Tokyo", country: "Japan", lat: 35.6595, lng: 139.7005, flag: "🇯🇵" },
-  { name: "Manila", country: "Philippines", lat: 14.5539, lng: 121.0183, flag: "🇵🇭" },
-  { name: "London", country: "UK", lat: 51.5134, lng: -0.1264, flag: "🇬🇧" },
-  { name: "New York", country: "USA", lat: 40.716, lng: -73.9634, flag: "🇺🇸" },
-  { name: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, flag: "🇦🇺" },
-  { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522, flag: "🇫🇷" },
+  { name: "Manila", country: "Philippines", region: "Metro Manila", lat: 14.5547, lng: 121.0244, flag: "🏙️" },
+  { name: "Baguio", country: "Philippines", region: "Benguet", lat: 16.4124, lng: 120.5960, flag: "🌲" },
+  { name: "Cebu", country: "Philippines", region: "Central Visayas", lat: 10.3157, lng: 123.8854, flag: "🌊" },
+  { name: "La Union", country: "Philippines", region: "Ilocos Region", lat: 16.6575, lng: 120.3204, flag: "🏄" },
+  { name: "Davao", country: "Philippines", region: "Mindanao", lat: 7.0731, lng: 125.6128, flag: "🏔️" },
+  { name: "Legazpi", country: "Philippines", region: "Albay", lat: 13.1391, lng: 123.7438, flag: "🌋" },
 ];
 
 const CURATED_VIBES = [

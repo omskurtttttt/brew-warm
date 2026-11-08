@@ -34,6 +34,14 @@ export const PREDEFINED_AREAS: Record<string, { name: string; bounds: SyncBounds
     name: "Quezon City (Tomas Morato / Diliman)",
     bounds: { south: 14.62, west: 121.02, north: 14.66, east: 121.06 },
   },
+  la_union: {
+    name: "La Union (San Juan / Urbiztondo)",
+    bounds: { south: 16.63, west: 120.30, north: 16.68, east: 120.34 },
+  },
+  davao: {
+    name: "Davao City (Poblacion / Matina)",
+    bounds: { south: 7.05, west: 125.59, north: 7.09, east: 125.63 },
+  },
   tokyo: {
     name: "Tokyo (Shibuya / Omotesando)",
     bounds: { south: 35.65, west: 139.69, north: 35.68, east: 139.73 },

@@ -509,19 +509,19 @@ function MapViewContent() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleSearchSelect(14.5547, 121.0494)}
-                                className="pill pill--hub"
-                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                              >
-                                <MapPinIcon size={11} color="var(--color-accent)" /> BGC
-                              </button>
-                              <button
-                                type="button"
                                 onClick={() => handleSearchSelect(14.5547, 121.0244)}
                                 className="pill pill--hub"
                                 style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                               >
-                                <MapPinIcon size={11} color="var(--color-accent)" /> Makati
+                                <MapPinIcon size={11} color="var(--color-accent)" /> Manila
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(16.4124, 120.5960)}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                              >
+                                <MapPinIcon size={11} color="var(--color-accent)" /> Baguio
                               </button>
                               <button
                                 type="button"
@@ -530,6 +530,22 @@ function MapViewContent() {
                                 style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                               >
                                 <MapPinIcon size={11} color="var(--color-accent)" /> Cebu
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(16.6575, 120.3204)}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                              >
+                                <MapPinIcon size={11} color="var(--color-accent)" /> La Union
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSearchSelect(7.0731, 125.6128)}
+                                className="pill pill--hub"
+                                style={{ cursor: "pointer", fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                              >
+                                <MapPinIcon size={11} color="var(--color-accent)" /> Davao
                               </button>
                             </div>
                             <button
