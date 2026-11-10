@@ -207,7 +207,7 @@ export default function FrontPage() {
             </div>
             <div className="front-nav__brand-text">
               <span className="front-nav__title">brew warm</span>
-              <span className="front-nav__badge">café atlas</span>
+              <span className="front-nav__badge">philippine edition</span>
             </div>
           </Link>
 
@@ -246,7 +246,7 @@ export default function FrontPage() {
           <div className="front-hero__eyebrow">
             <span className="front-hero__pill">
               <SparklesIcon size={13} color="var(--color-accent)" />
-              INDEPENDENT COFFEE ATLAS
+              PHILIPPINE SPECIALTY COFFEE ATLAS
             </span>
           </div>
 
@@ -255,8 +255,8 @@ export default function FrontPage() {
           </h1>
 
           <p className="front-hero__subhead">
-            A curated directory of independent coffee spaces, quiet study sanctuaries, and specialty
-            roasters. Free of ads, powered by OpenStreetMap, and shaped by coffee wanderers.
+            A curated directory of independent coffee spaces, quiet study sanctuaries, and homegrown
+            roasters across the Philippines. Free of ads, powered by OpenStreetMap, and shaped by coffee wanderers.
           </p>
 
           {/* Search Card */}
@@ -515,7 +515,7 @@ export default function FrontPage() {
               </div>
             </div>
             <p className="front-footer__tagline">
-              Dedicated to slow sips, sunny outdoor terraces, and independent coffee makers.
+              Dedicated to slow sips, homegrown Philippine beans, and independent coffee makers.
             </p>
           </div>
 

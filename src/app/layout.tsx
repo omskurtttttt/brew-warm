@@ -31,10 +31,23 @@ const caveat = Caveat({
    Metadata
    -------------------------------------------------------- */
 export const metadata: Metadata = {
-  title: "Brew Warm — Coffee Shop Finder",
+  title: "Brew Warm — Philippine Specialty Coffee Atlas",
   description:
-    "Discover nearby coffee shops on an interactive map. Free, open-source, powered by OpenStreetMap.",
-  keywords: ["coffee", "café", "shop finder", "map", "OpenStreetMap", "specialty coffee"],
+    "Discover independent coffee spaces, quiet study sanctuaries, and homegrown roasters across the Philippines on an interactive map. Free, community-driven, powered by OpenStreetMap.",
+  keywords: [
+    "coffee",
+    "café",
+    "philippines coffee",
+    "specialty coffee philippines",
+    "philippine coffee atlas",
+    "manila coffee shops",
+    "cebu coffee",
+    "baguio coffee",
+    "la union coffee",
+    "coffee shop finder",
+    "map",
+    "OpenStreetMap"
+  ],
   metadataBase: new URL("https://brew-warm.vercel.app"),
   icons: {
     icon: [
@@ -45,16 +58,16 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Brew Warm — Coffee Shop Finder",
-    description: "Discover nearby coffee shops on an interactive map.",
+    title: "Brew Warm — Philippine Specialty Coffee Atlas",
+    description: "Discover independent coffee spaces and homegrown roasters across the Philippines on an interactive map.",
     type: "website",
     siteName: "Brew Warm",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Brew Warm — Coffee Shop Finder",
-    description: "Discover nearby coffee shops on an interactive map.",
+    title: "Brew Warm — Philippine Specialty Coffee Atlas",
+    description: "Discover independent coffee spaces and homegrown roasters across the Philippines on an interactive map.",
   },
 };
 

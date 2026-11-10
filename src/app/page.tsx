@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import FrontPage from "@/components/FrontPage";
 
 export const metadata: Metadata = {
-  title: "Brew Warm — Independent Coffee Spaces & Map Radar",
+  title: "Brew Warm — Philippine Specialty Coffee Atlas",
   description:
-    "Discover independent coffee shops, quiet study corners, and specialty roasters across the globe on an interactive map. Powered by OpenStreetMap.",
+    "Discover independent coffee spaces, quiet study sanctuaries, and homegrown roasters across the Philippines on an interactive map. Powered by OpenStreetMap.",
 };
 
 export default function HomePage() {
