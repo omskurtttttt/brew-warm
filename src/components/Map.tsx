@@ -216,6 +216,20 @@ function FlyToSearch({ flyTo }: { flyTo: FlyToTarget | null }) {
 }
 
 
+/* -------------------------------------------------------
+   Philippine Archipelago Geographical Bounds
+   South-West: Tawi-Tawi / Sulu Sea buffer
+   North-East: Batanes / Luzon Strait buffer
+   ------------------------------------------------------- */
+const PHILIPPINES_BOUNDS: [[number, number], [number, number]] = [
+  [4.2, 114.5],
+  [21.8, 127.5],
+];
+
+function isWithinPhilippines(lat: number, lng: number): boolean {
+  return lat >= 4.2 && lat <= 21.8 && lng >= 114.5 && lng <= 127.5;
+}
+
 export default function Map({
   onCafesLoaded,
   onCafeSelect,
@@ -281,12 +295,15 @@ export default function Map({
   // Default center (Legazpi City, Albay, Philippines)
   const defaultCenter: [number, number] = [13.1391, 123.7438];
 
-  // Request user geolocation on mount
+  // Request user geolocation on mount (validated within the Philippines)
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setUserPos([pos.coords.latitude, pos.coords.longitude]);
+          const { latitude, longitude } = pos.coords;
+          if (isWithinPhilippines(latitude, longitude)) {
+            setUserPos([latitude, longitude]);
+          }
         },
         () => {
           // Geolocation denied or unavailable, fallback to default center
@@ -302,11 +319,14 @@ export default function Map({
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-          setUserPos(coords);
+          const { latitude, longitude } = pos.coords;
           setIsLocating(false);
-          locateKeyRef.current += 1;
-          setLocateFly({ lat: coords[0], lng: coords[1], key: locateKeyRef.current });
+          if (isWithinPhilippines(latitude, longitude)) {
+            const coords: [number, number] = [latitude, longitude];
+            setUserPos(coords);
+            locateKeyRef.current += 1;
+            setLocateFly({ lat: coords[0], lng: coords[1], key: locateKeyRef.current });
+          }
         },
         () => {
           setIsLocating(false);
@@ -386,6 +406,10 @@ export default function Map({
       <MapContainer
         center={userPos ?? defaultCenter}
         zoom={15}
+        minZoom={5}
+        maxZoom={19}
+        maxBounds={PHILIPPINES_BOUNDS}
+        maxBoundsViscosity={0.75}
         style={{ height: "100%", width: "100%" }}
         zoomControl={false}
       >
