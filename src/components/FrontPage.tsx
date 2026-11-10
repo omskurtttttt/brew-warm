@@ -141,7 +141,7 @@ export default function FrontPage() {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           q
-        )}&limit=5&addressdetails=0`,
+        )}&limit=5&addressdetails=0&countrycodes=ph`,
         { headers: { "User-Agent": "BrewWarm/1.0" } }
       );
       const data: NominatimResult[] = await res.json();
@@ -270,7 +270,7 @@ export default function FrontPage() {
                   type="text"
                   value={query}
                   onChange={(e) => handleInputChange(e.target.value)}
-                  placeholder="Search any neighborhood, city, or café..."
+                  placeholder="Search any Philippine city, neighborhood, or café..."
                   className="front-hero__input"
                   aria-label="Search destination"
                 />

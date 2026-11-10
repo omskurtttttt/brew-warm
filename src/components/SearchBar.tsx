@@ -30,7 +30,7 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=0`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=0&countrycodes=ph`,
         { headers: { "User-Agent": "BrewWarm/1.0" } }
       );
       const data: NominatimResult[] = await res.json();
@@ -83,7 +83,7 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
         <input
           className="input"
           type="text"
-          placeholder="search for a place or address..."
+          placeholder="search a place or café in the Philippines..."
           value={query}
           onChange={(e) => handleInput(e.target.value)}
           onFocus={() => results.length > 0 && setIsOpen(true)}
