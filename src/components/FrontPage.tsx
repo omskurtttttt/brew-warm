@@ -207,7 +207,7 @@ export default function FrontPage() {
             </div>
             <div className="front-nav__brand-text">
               <span className="front-nav__title">brew warm</span>
-              <span className="front-nav__badge">philippine edition</span>
+              <span className="front-nav__badge">café atlas</span>
             </div>
           </Link>
 
@@ -246,7 +246,7 @@ export default function FrontPage() {
           <div className="front-hero__eyebrow">
             <span className="front-hero__pill">
               <SparklesIcon size={13} color="var(--color-accent)" />
-              PHILIPPINE SPECIALTY COFFEE ATLAS
+              INDEPENDENT COFFEE ATLAS
             </span>
           </div>
 
