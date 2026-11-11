@@ -270,7 +270,7 @@ export default function FrontPage() {
                   type="text"
                   value={query}
                   onChange={(e) => handleInputChange(e.target.value)}
-                  placeholder="Search any Philippine city, neighborhood, or café..."
+                  placeholder="Search any city, neighborhood, or café..."
                   className="front-hero__input"
                   aria-label="Search destination"
                 />

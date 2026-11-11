@@ -83,7 +83,7 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
         <input
           className="input"
           type="text"
-          placeholder="search a place or café in the Philippines..."
+          placeholder="search for a place or café..."
           value={query}
           onChange={(e) => handleInput(e.target.value)}
           onFocus={() => results.length > 0 && setIsOpen(true)}
