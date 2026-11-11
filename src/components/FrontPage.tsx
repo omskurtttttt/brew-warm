@@ -256,7 +256,7 @@ export default function FrontPage() {
 
           <p className="front-hero__subhead">
             A curated directory of independent coffee spaces, quiet study sanctuaries, and homegrown
-            roasters across the Philippines. Free of ads, powered by OpenStreetMap, and shaped by coffee wanderers.
+            roasters. Free of ads, powered by OpenStreetMap, and shaped by coffee wanderers.
           </p>
 
           {/* Search Card */}
@@ -375,7 +375,7 @@ export default function FrontPage() {
           <span className="front-section__eyebrow">✦ HANDPICKED SPACES</span>
           <h2 className="front-section__title">Coffee Sanctuaries</h2>
           <p className="front-section__subtitle">
-            Beloved independent spaces across the Philippines celebrated for extraordinary cups, homegrown roasts, and welcoming souls.
+            Beloved independent spaces celebrated for extraordinary cups, homegrown roasts, and welcoming souls.
           </p>
         </div>
 
@@ -515,7 +515,7 @@ export default function FrontPage() {
               </div>
             </div>
             <p className="front-footer__tagline">
-              Dedicated to slow sips, homegrown Philippine beans, and independent coffee makers.
+              Dedicated to slow sips, homegrown beans, and independent coffee makers.
             </p>
           </div>
 

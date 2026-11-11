@@ -31,9 +31,9 @@ const caveat = Caveat({
    Metadata
    -------------------------------------------------------- */
 export const metadata: Metadata = {
-  title: "Brew Warm — Philippine Specialty Coffee Atlas",
+  title: "Brew Warm — Independent Coffee Atlas",
   description:
-    "Discover independent coffee spaces, quiet study sanctuaries, and homegrown roasters across the Philippines on an interactive map. Free, community-driven, powered by OpenStreetMap.",
+    "Discover independent coffee spaces, quiet study sanctuaries, and homegrown roasters on an interactive map. Free, community-driven, powered by OpenStreetMap.",
   keywords: [
     "coffee",
     "café",
@@ -58,16 +58,16 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Brew Warm — Philippine Specialty Coffee Atlas",
-    description: "Discover independent coffee spaces and homegrown roasters across the Philippines on an interactive map.",
+    title: "Brew Warm — Independent Coffee Atlas",
+    description: "Discover independent coffee spaces and homegrown roasters on an interactive map.",
     type: "website",
     siteName: "Brew Warm",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Brew Warm — Philippine Specialty Coffee Atlas",
-    description: "Discover independent coffee spaces and homegrown roasters across the Philippines on an interactive map.",
+    title: "Brew Warm — Independent Coffee Atlas",
+    description: "Discover independent coffee spaces and homegrown roasters on an interactive map.",
   },
 };
 
