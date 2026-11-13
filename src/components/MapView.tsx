@@ -10,7 +10,6 @@ import FilterBar from "@/components/FilterBar";
 import FavoritesPanel from "@/components/FavoritesPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import CoffeeStain from "@/components/CoffeeStain";
-import AmbientPlayer from "@/components/AmbientPlayer";
 import { SparklesIcon, CoffeeIcon, CompassIcon, MapPinIcon } from "@/components/Icons";
 import { getOrCreateSessionId } from "@/lib/session";
 import { ToastProvider, useToast } from "@/components/Toast";
@@ -355,7 +354,6 @@ function MapViewContent() {
                 </Link>
 
                 <div className="sidebar-utility-actions">
-                  <AmbientPlayer />
                   <ThemeToggle />
                   <button
                     type="button"

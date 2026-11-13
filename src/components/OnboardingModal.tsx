@@ -24,9 +24,9 @@ const STEPS = [
     accent: "☕",
   },
   {
-    emoji: "🎧",
-    title: "filters & ambient vibes",
-    body: "Narrow your search with filters like Wi-Fi, outdoor seating, and open hours. Tap café vibes to enable soothing lofi rain ambience while you explore.",
+    emoji: "✨",
+    title: "curated vibes & filters",
+    body: "Narrow your search with filters like high-speed Wi-Fi, sunlit patios, and open hours. Explore spaces tailored specifically to your work or coffee ritual.",
     tip: 'Feeling adventurous? Hit "Surprise Me" to discover a random hidden gem nearby.',
     tipIcon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -34,7 +34,7 @@ const STEPS = [
       </svg>
     ),
     gradient: "linear-gradient(135deg, rgba(193,104,47,0.08) 0%, rgba(116,78,170,0.06) 100%)",
-    accent: "🎶",
+    accent: "☕",
   },
   {
     emoji: "♥️",

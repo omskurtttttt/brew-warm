@@ -4,7 +4,6 @@ import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
-import AmbientPlayer from "@/components/AmbientPlayer";
 import CoffeeStain from "@/components/CoffeeStain";
 import {
   CoffeeIcon,
@@ -218,16 +217,12 @@ export default function FrontPage() {
             <a href="#featured" className="front-nav__link">
               Sanctuaries
             </a>
-            <a href="#ambient" className="front-nav__link">
-              Soundscape
-            </a>
             <a href="#about" className="front-nav__link">
               Passport
             </a>
           </nav>
 
           <div className="front-nav__actions">
-            <AmbientPlayer />
             <ThemeToggle />
             <Link href="/map" className="btn-primary front-nav__cta">
               <span>Open Map</span>
@@ -423,31 +418,6 @@ export default function FrontPage() {
               </div>
             </article>
           ))}
-        </div>
-      </section>
-
-      {/* ─── Ambient Coffeehouse Experience ─── */}
-      <section id="ambient" className="front-ambient-section">
-        <div className="front-ambient-card">
-          <div className="front-ambient-card__text">
-            <span className="front-section__eyebrow">✦ AMBIENT WORKSPACE</span>
-            <h2 className="front-ambient-card__title">Bring the café soundscape with you.</h2>
-            <p className="front-ambient-card__desc">
-              Soft rain tapping on the glass, milk steamed to velvet, and quiet lo-fi murmurs.
-              Turn on our built-in ambient player while you work or plan your weekend café crawl.
-            </p>
-            <div className="front-ambient-card__controls">
-              <div className="front-ambient-card__player-wrap">
-                <AmbientPlayer />
-                <span className="front-ambient-card__hint">
-                  ← tap to toggle rain & coffee murmur
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="front-ambient-card__badge" aria-hidden="true">
-            ☕
-          </div>
         </div>
       </section>
 
